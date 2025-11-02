@@ -12,7 +12,7 @@ This repository is structured as a Claude Code plugin marketplace. You can insta
 
 ### Install Everything (Recommended)
 ```bash
-/plugin marketplace add /path/to/flutter-claude-code
+/plugin marketplace add https://github.com/cleydson/flutter-claude-code
 /plugin install flutter-all@flutter-claude-code
 ```
 
@@ -41,45 +41,45 @@ See [PLUGIN_INSTALLATION.md](PLUGIN_INSTALLATION.md) for detailed installation i
 ### Category 1: Design-to-Implementation Pipeline
 The core workflow for converting designs into pixel-perfect Flutter implementations.
 
-- **Agent 1.1**: Flutter UI Designer (Design Analysis & Widget Selection)
-- **Agent 1.2**: Flutter UI Implementer (Code Generation & Styling)
-- **Agent 1.3**: Flutter Device Orchestrator (Simulator/Emulator Management)
-- **Agent 1.4**: UI Comparison & Validation Specialist
-- **Agent 1.5**: Design Iteration Coordinator (Workflow Orchestrator)
+- **flutter-ui-designer**: Flutter UI Designer (Design Analysis & Widget Selection)
+- **flutter-ui-implementer**: Flutter UI Implementer (Code Generation & Styling)
+- **flutter-device-orchestrator**: Flutter Device Orchestrator (Simulator/Emulator Management)
+- **flutter-ui-comparison**: UI Comparison & Validation Specialist
+- **flutter-design-iteration-coordinator**: Design Iteration Coordinator (Workflow Orchestrator)
 
 ### Category 2: Flutter Architecture & Code Organization
 Ensures clean, maintainable, and scalable applications.
 
-- **Agent 2.1**: Flutter Architect (Project Structure & Patterns)
-- **Agent 2.2**: Flutter State Management Specialist
+- **flutter-architect**: Flutter Architect (Project Structure & Patterns)
+- **flutter-state-management**: Flutter State Management Specialist
 
 ### Category 3: Platform-Specific Development
 Handles iOS and Android native integrations.
 
-- **Agent 3.1**: iOS Integration Specialist
-- **Agent 3.2**: Android Integration Specialist
-- **Agent 3.3**: Platform Channel Architect
+- **flutter-ios-integration**: iOS Integration Specialist
+- **flutter-android-integration**: Android Integration Specialist
+- **flutter-platform-channel-architect**: Platform Channel Architect
 
 ### Category 4: Performance Optimization
 Ensures smooth, efficient applications.
 
-- **Agent 4.1**: Flutter Performance Analyzer
-- **Agent 4.2**: Flutter Performance Optimizer
+- **flutter-performance-analyzer**: Flutter Performance Analyzer
+- **flutter-performance-optimizer**: Flutter Performance Optimizer
 
 ### Category 5: API Integration & Backend Connectivity
 Connects to various backend services.
 
-- **Agent 5.1**: Flutter REST API Specialist
-- **Agent 5.2**: Flutter Firebase Integration Expert
-- **Agent 5.3**: Flutter AWS Integration Expert
-- **Agent 5.4**: Flutter GraphQL Integration Expert
+- **flutter-rest-api**: Flutter REST API Specialist
+- **flutter-firebase**: Flutter Firebase Integration Expert
+- **flutter-aws**: Flutter AWS Integration Expert
+- **flutter-graphql**: Flutter GraphQL Integration Expert
 
 ### Category 6: Quality Assurance & Deployment
 Ensures code quality and smooth deployments.
 
-- **Agent 6.1**: Flutter Testing Expert
-- **Agent 6.2**: Flutter Deployment Specialist (iOS)
-- **Agent 6.3**: Flutter Deployment Specialist (Android)
+- **flutter-testing**: Flutter Testing Expert
+- **flutter-ios-deployment**: Flutter Deployment Specialist (iOS)
+- **flutter-android-deployment**: Flutter Deployment Specialist (Android)
 
 ## Primary Workflows
 
@@ -161,7 +161,7 @@ All agents are grounded in the official Flutter documentation at https://docs.fl
 ```
 1. Export your design from Figma as PNG
 2. Save to /designs/screen_name.png
-3. Ask Agent 1.5 (Design Iteration Coordinator):
+3. Ask flutter-design-iteration-coordinator:
    "Create a pixel-perfect implementation of /designs/screen_name.png"
 4. Agent orchestrates the complete workflow
 5. Receive pixel-perfect Flutter code
@@ -170,10 +170,10 @@ All agents are grounded in the official Flutter documentation at https://docs.fl
 ### Example: New Project Setup
 
 ```
-1. Ask Agent 2.1 (Flutter Architect):
+1. Ask flutter-architect:
    "Create a new e-commerce app with Clean Architecture"
 2. Receive complete project structure
-3. Ask Agent 2.2 (State Management):
+3. Ask flutter-state-management:
    "Set up BLoC for state management"
 4. Receive configured state management
 ```
@@ -181,7 +181,7 @@ All agents are grounded in the official Flutter documentation at https://docs.fl
 ### Example: Firebase Integration
 
 ```
-1. Ask Agent 5.2 (Firebase Expert):
+1. Ask flutter-firebase:
    "Set up Firebase Auth and Firestore for user profiles"
 2. Receive complete Firebase integration
 3. Get authentication service and Firestore service
@@ -211,11 +211,11 @@ The `flutter-patterns` skill provides on-demand reference for:
 
 Agents are designed to work together:
 
-- **1.5 (Coordinator)** orchestrates 1.1, 1.2, 1.3, and 1.4
-- **2.1 (Architect)** works with 2.2 (State Management)
-- **3.3 (Platform Channels)** coordinates with 3.1 (iOS) and 3.2 (Android)
-- **4.1 (Analyzer)** feeds findings to 4.2 (Optimizer)
-- **6.2 (iOS Deploy)** and **6.3 (Android Deploy)** work in parallel
+- **flutter-design-iteration-coordinator** orchestrates flutter-ui-designer, flutter-ui-implementer, flutter-device-orchestrator, and flutter-ui-comparison
+- **flutter-architect** works with flutter-state-management
+- **flutter-platform-channel-architect** coordinates with flutter-ios-integration and flutter-android-integration
+- **flutter-performance-analyzer** feeds findings to flutter-performance-optimizer
+- **flutter-ios-deployment** and **flutter-android-deployment** work in parallel
 
 ## Repository Structure
 
