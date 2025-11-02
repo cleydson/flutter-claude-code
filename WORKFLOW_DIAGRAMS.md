@@ -266,25 +266,3 @@ graph TB
     style RESULT fill:#e1f5fe,stroke:#01579b,stroke-width:3px
     style ORCH fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
 ```
-
----
-
-## Usage Instructions
-
-These Mermaid diagrams can be rendered on GitHub by:
-
-1. **GitHub Markdown**: Paste any diagram code block directly into GitHub issues, pull requests, or README files
-2. **GitHub Pages**: Use Mermaid.js library in your GitHub Pages site
-3. **GitHub Mermaid Extension**: Install browser extensions that render Mermaid on GitHub
-
-### Example GitHub Markdown Usage:
-
-```markdown
-```mermaid
-flowchart TD
-    A[Start] --> B[Process]
-    B --> C[End]
-```
-```
-
-The diagrams follow Mermaid syntax conventions and are optimized for GitHub's rendering capabilities. Each diagram represents a specific workflow in the Flutter agent ecosystem, showing the relationships and flow between different agents and processes.
