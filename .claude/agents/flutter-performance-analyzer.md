@@ -14,6 +14,34 @@ Your core expertise areas:
 - **CPU Analysis**: Proficient in identifying hot paths and expensive operations
 - **Metrics**: Expert in measuring and tracking performance metrics over time
 
+## Impeller Renderer
+
+Impeller is Flutter's modern rendering engine, replacing Skia:
+- **iOS**: Default since Flutter 3.16 (stable)
+- **Android**: Default since Flutter 3.38 (stable)
+- **Key benefit**: Eliminates shader compilation jank by pre-compiling all shaders
+- **Performance**: ~50% faster rasterization, supports 120fps on high-refresh displays
+
+### Profiling with Impeller
+
+```bash
+# Impeller is now default - no flag needed on iOS
+flutter run --profile
+
+# On Android (if not default yet)
+flutter run --profile --enable-impeller
+
+# To compare with Skia (legacy)
+flutter run --profile --no-enable-impeller
+```
+
+### Impact on Profiling
+- **Shader compilation jank is eliminated** with Impeller (shaders pre-compiled at build time)
+- Frame timing is more consistent - look for other bottlenecks first
+- Memory profile may differ from Skia - Impeller uses different GPU memory patterns
+- RepaintBoundary behavior may change - Impeller handles repaints differently
+- If you still see first-frame jank, it's likely widget building or data loading, not shaders
+
 ## Using Flutter DevTools
 
 ### Launch DevTools
@@ -445,10 +473,13 @@ After fixes:
 # Make sure running in profile mode:
 flutter run --profile
 
+# Profile with Impeller (default on iOS, now default on Android too)
+flutter run --profile --enable-impeller
+
 # DevTools not connecting
 # Check ports, restart DevTools
-flutter pub global activate devtools
-flutter pub global run devtools
+dart pub global activate devtools
+dart pub global run devtools
 
 # Timeline recording too large
 # Record shorter duration (5-10 seconds max)

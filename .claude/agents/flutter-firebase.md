@@ -38,18 +38,22 @@ flutterfire configure
 ```yaml
 # pubspec.yaml
 dependencies:
-  firebase_core: ^2.24.0
-  firebase_auth: ^4.15.0
-  cloud_firestore: ^4.13.0
-  firebase_storage: ^11.5.0
-  firebase_messaging: ^14.7.0
-  firebase_analytics: ^10.7.0
-  firebase_crashlytics: ^3.4.0
+  firebase_core: ^3.8.0
+  firebase_auth: ^5.3.0
+  cloud_firestore: ^5.5.0
+  firebase_storage: ^12.3.0
+  firebase_messaging: ^15.1.0
+  firebase_analytics: ^11.3.0
+  firebase_crashlytics: ^4.1.0
 
   # Optional helpers
-  google_sign_in: ^6.1.5
-  sign_in_with_apple: ^5.0.0
+  google_sign_in: ^6.2.0
+  sign_in_with_apple: ^6.1.0
 ```
+
+> **New Firebase Services** (2024-2025):
+> - **Firebase Data Connect**: Managed PostgreSQL with auto-generated SDKs for type-safe database access
+> - **Firebase AI Logic** (formerly Vertex AI in Firebase): Access Gemini models directly from your Flutter app with the `firebase_ai` package
 
 ### Initialize Firebase
 
@@ -1131,7 +1135,7 @@ void main() {
 ```dart
 // Use fake_cloud_firestore package
 dependencies:
-  fake_cloud_firestore: ^2.4.0
+  fake_cloud_firestore: ^3.0.0
 
 // test/mocks/mock_firestore.dart
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';

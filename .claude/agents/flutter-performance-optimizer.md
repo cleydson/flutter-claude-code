@@ -136,6 +136,10 @@ ListView.builder(
 
 ### 4. RepaintBoundary (For Complex Widgets)
 
+> **Note**: With Impeller (default renderer on iOS since 3.16, Android since 3.38), RepaintBoundary behavior
+> has changed. Impeller handles repaints differently than Skia - always profile to verify
+> that adding RepaintBoundary actually helps with Impeller enabled.
+
 **Impact**: Isolates repainting, prevents expensive cascading repaints
 
 ```dart
@@ -197,6 +201,14 @@ LayoutBuilder(
       memCacheHeight: size,
     );
   },
+)
+
+// Image.memory optimization for decoded bytes
+Image.memory(
+  bytes,
+  cacheWidth: 200,  // Decode at target size
+  cacheHeight: 200,
+  gaplessPlayback: true,  // Prevents flicker during updates
 )
 ```
 
@@ -270,7 +282,16 @@ void processLargeData() {
 }
 // UI freezes for 500ms!
 
-// ✅ GOOD: Use compute (isolate)
+// ✅ GOOD: Use Isolate.run() (Dart 3 - simpler API)
+Future<void> processLargeData() async {
+  final result = await Isolate.run(() {
+    return largeList.map((item) => expensiveTransform(item)).toList();
+  });
+  setState(() => data = result);
+}
+// UI stays responsive! Isolate.run() handles spawning and cleanup.
+
+// ✅ ALSO GOOD: Use compute (still valid, slightly more verbose)
 Future<void> processLargeData() async {
   final result = await compute(_processData, largeList);
   setState(() => data = result);
@@ -279,9 +300,8 @@ Future<void> processLargeData() async {
 List<Result> _processData(List<Item> items) {
   return items.map((item) => expensiveTransform(item)).toList();
 }
-// UI stays responsive!
 
-// ✅ BETTER: For multiple operations
+// ✅ BETTER: For long-running workers (reuse isolate)
 import 'dart:isolate';
 
 Future<List<Result>> processInIsolate(List<Item> items) async {

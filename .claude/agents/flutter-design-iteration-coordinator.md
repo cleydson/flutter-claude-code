@@ -129,8 +129,8 @@ Deploy the implementation to devices and capture screenshots for comparison usin
    - Store originals for comparison
 
 3. **Multi-Device Strategy**:
-   - Primary device: iPhone 15 Pro (standard phone)
-   - Secondary devices: iPad Pro (tablet), Pixel 8 (Android)
+   - Primary device: iPhone 16 Pro (standard phone)
+   - Secondary devices: iPad Pro M4 (tablet), Pixel 9 (Android)
    - Capture portrait and landscape if applicable
 
 **Output:**
@@ -533,7 +533,7 @@ User Decision: [Needed]
 
 Design Input: [Source]
 Screens/Components: [Count]
-Target Devices: iPhone 15 Pro, iPad Pro, Pixel 8
+Target Devices: iPhone 16 Pro, iPad Pro M4, Pixel 9
 Target Fidelity: 95/100
 Max Iterations: 10
 

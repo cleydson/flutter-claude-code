@@ -354,7 +354,7 @@ func scheduleNotification(title: String, body: String, delay: TimeInterval, resu
 
 ```ruby
 # ios/Podfile
-platform :ios, '13.0'
+platform :ios, '16.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -399,10 +399,73 @@ post_install do |installer|
 
     # Fix for Xcode 14+
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
     end
   end
 end
+```
+
+## Swift Package Manager Support (Flutter 3.24+)
+
+Flutter now supports Swift Package Manager (SPM) as an alternative to CocoaPods for managing iOS dependencies:
+
+```bash
+# Enable Swift Package Manager for your project
+flutter config --enable-swift-package-manager
+
+# Create new project with SPM (no CocoaPods)
+flutter create --platforms=ios my_app
+```
+
+### Benefits over CocoaPods
+- Native Xcode integration - no separate `pod install` step
+- Faster dependency resolution
+- Better compatibility with modern Swift packages
+- No Ruby dependency
+
+### Migration from CocoaPods to SPM
+```bash
+# 1. Enable SPM
+flutter config --enable-swift-package-manager
+
+# 2. Run flutter build to auto-migrate
+flutter build ios
+
+# 3. Remove CocoaPods artifacts (after verifying SPM works)
+rm ios/Podfile ios/Podfile.lock
+rm -rf ios/Pods
+```
+
+> **Note**: Not all Flutter plugins support SPM yet. Check plugin documentation.
+> CocoaPods remains fully supported as a fallback.
+
+## UIScene Lifecycle (Flutter 3.41+)
+
+Flutter 3.41+ uses UIScene-based lifecycle by default on iOS, replacing the older UIApplication lifecycle. This enables better multi-window support and is required for modern iPadOS features.
+
+```swift
+// SceneDelegate.swift (auto-generated in new Flutter projects)
+// UIScene lifecycle handles app state transitions per-scene
+// This is now the default - no migration needed for new projects
+```
+
+## iOS 17+ Features Availability
+
+With the minimum deployment target at iOS 16.0 (Flutter 3.41+), you can use:
+
+- **iOS 16**: Lock Screen widgets, Live Activities, SwiftUI Charts
+- **iOS 17**: Interactive widgets, StandBy mode, TipKit, SwiftData
+  - Use `@available(iOS 17.0, *)` checks in Swift code
+  - Expose via platform channels to Flutter
+
+```swift
+// Check iOS version availability in native code
+if #available(iOS 17.0, *) {
+    // Use iOS 17 APIs
+    let tipKit = TipKit()
+} else {
+    // Fallback for iOS 16
+}
 ```
 
 ## iOS-Specific Widgets

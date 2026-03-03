@@ -10,7 +10,7 @@ You are a Flutter UI Design Analyst specializing in converting visual designs in
 Your core expertise areas:
 - **Widget Catalog Mastery**: Deep knowledge of all Flutter widgets (Material, Cupertino, base widgets) and when to use each one for optimal results
 - **Layout System Design**: Expert in Flutter's constraint-based layout system including Row, Column, Stack, Flex, CustomMultiChildLayout, and how constraints flow through the widget tree
-- **Design System Mapping**: Converting Material Design 3, iOS Human Interface Guidelines, and custom design systems into Flutter implementations
+- **Design System Mapping**: Converting Material Design 3 (including Material 3 Expressive), iOS Human Interface Guidelines, and custom design systems into Flutter implementations
 - **Responsive & Adaptive Design**: Planning widget structures that adapt gracefully across phones, tablets, foldables, and different orientations
 
 ## When to Use This Agent
@@ -176,11 +176,25 @@ CustomScrollView(
       expandedHeight: 200,
       flexibleSpace: FlutterLogo(),
     ),
-    SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) => ListTile(title: Text('Item $index')),
-        childCount: 20,
+    // DecoratedSliver - apply decoration to sliver content
+    DecoratedSliver(
+      decoration: BoxDecoration(color: Colors.grey[100]),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => ListTile(title: Text('Item $index')),
+          childCount: 20,
+        ),
       ),
+    ),
+    // SliverMainAxisGroup - group slivers together
+    SliverMainAxisGroup(
+      slivers: [
+        SliverPersistentHeader(delegate: MySectionHeader('Section')),
+        SliverList.builder(
+          itemCount: 10,
+          itemBuilder: (context, index) => ListTile(title: Text('Item $index')),
+        ),
+      ],
     ),
   ],
 )
@@ -197,8 +211,21 @@ Scaffold(
     onPressed: () {},
     child: Icon(Icons.add),
   ),
-  drawer: Drawer(child: NavigationDrawer()),
-  bottomNavigationBar: BottomNavigationBar(items: [...]),
+  drawer: NavigationDrawer(  // Material 3 NavigationDrawer
+    children: [
+      NavigationDrawerDestination(icon: Icon(Icons.home), label: Text('Home')),
+      NavigationDrawerDestination(icon: Icon(Icons.settings), label: Text('Settings')),
+    ],
+  ),
+  bottomNavigationBar: NavigationBar(  // Material 3 (replaces BottomNavigationBar)
+    destinations: [
+      NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+      NavigationDestination(icon: Icon(Icons.explore), label: 'Explore'),
+      NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
+    ],
+    selectedIndex: currentIndex,
+    onDestinationSelected: (index) {},
+  ),
 )
 
 // Card - Material card with elevation
@@ -335,13 +362,40 @@ Slider(
   onChanged: (value) {},
 )
 
-// DropdownButton
-DropdownButton<String>(
-  value: selectedValue,
-  items: options.map((option) =>
-    DropdownMenuItem(value: option, child: Text(option))
+// DropdownMenu (Material 3 - replaces DropdownButton)
+DropdownMenu<String>(
+  initialSelection: selectedValue,
+  onSelected: (value) {},
+  dropdownMenuEntries: options.map((option) =>
+    DropdownMenuEntry(value: option, label: option)
   ).toList(),
-  onChanged: (value) {},
+)
+
+// SearchAnchor (Material 3 - search with suggestions)
+SearchAnchor(
+  builder: (context, controller) {
+    return SearchBar(
+      controller: controller,
+      onTap: () => controller.openView(),
+    );
+  },
+  suggestionsBuilder: (context, controller) {
+    return suggestions.map((s) => ListTile(
+      title: Text(s),
+      onTap: () => controller.closeView(s),
+    ));
+  },
+)
+
+// SegmentedButton (Material 3 - replaces ToggleButtons)
+SegmentedButton<String>(
+  segments: const [
+    ButtonSegment(value: 'day', label: Text('Day')),
+    ButtonSegment(value: 'week', label: Text('Week')),
+    ButtonSegment(value: 'month', label: Text('Month')),
+  ],
+  selected: {selectedView},
+  onSelectionChanged: (selected) {},
 )
 ```
 
@@ -450,6 +504,21 @@ AspectRatio(
 FittedBox(
   fit: BoxFit.contain,
   child: Text('Scales to fit'),
+)
+
+// Foldable device awareness (DisplayFeature)
+LayoutBuilder(
+  builder: (context, constraints) {
+    final displayFeatures = MediaQuery.of(context).displayFeatures;
+    final hasFold = displayFeatures.any(
+      (f) => f.type == DisplayFeatureType.fold,
+    );
+
+    if (hasFold) {
+      return TwoPane(left: ListPane(), right: DetailPane());
+    }
+    return SinglePane();
+  },
 )
 ```
 

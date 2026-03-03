@@ -97,7 +97,7 @@ class ImageChannel {
 
 ## Type-Safe Channels with Pigeon
 
-### Pigeon Definition
+### Pigeon Definition (Pigeon 22.x+)
 
 ```dart
 // pigeons/api.dart
@@ -108,21 +108,27 @@ import 'package:pigeon/pigeon.dart';
   kotlinOut: 'android/app/src/main/kotlin/com/example/app/Pigeon.kt',
   swiftOut: 'ios/Runner/Pigeon.swift',
   kotlinOptions: KotlinOptions(package: 'com.example.app'),
+  // Pigeon 22.x+ supports these additional options:
+  dartPackageName: 'my_app',
 ))
 
+// Pigeon 22.x+ supports non-nullable fields with constructors
 class User {
-  String? id;
-  String? name;
+  User({required this.id, required this.name, this.email});
+  String id;
+  String name;
   String? email;
 }
 
 class LoginRequest {
-  String? email;
-  String? password;
+  LoginRequest({required this.email, required this.password});
+  String email;
+  String password;
 }
 
 class LoginResult {
-  bool? success;
+  LoginResult({required this.success, this.user, this.error});
+  bool success;
   User? user;
   String? error;
 }
@@ -148,8 +154,78 @@ abstract class AuthCallbackApi {
 ### Generate Code
 
 ```bash
-flutter pub run pigeon \
-  --input pigeons/api.dart
+dart run pigeon --input pigeons/api.dart
+```
+
+## Alternative Native Binding Approaches
+
+### jnigen - Direct Java/Kotlin Binding (Early Access)
+
+> **Status**: jnigen v0.15.x is maturing (early access for plugin authors as of June 2025). Part of the Flutter team's vision for direct native interop WITHOUT method channels.
+
+For direct binding to Java/Kotlin APIs without manual platform channels:
+
+```yaml
+# pubspec.yaml
+dev_dependencies:
+  jnigen: ^0.15.0
+```
+
+```bash
+# Generate Dart bindings from Java/Kotlin classes
+dart run jnigen --config jnigen.yaml
+```
+
+```yaml
+# jnigen.yaml
+output:
+  dart:
+    path: lib/src/android/
+    structure: single_file
+  c:
+    path: src/
+classes:
+  - android.os.Build
+  - android.content.pm.PackageManager
+```
+
+### ffigen - Direct Native Binding (Stable)
+
+> **Status**: FFIgen is STABLE with 1M+ pub.dev downloads. Generates bindings for C, C++, Go, Rust, Swift, and Objective-C. This is the Flutter team's recommended path for direct native interop.
+
+```yaml
+# pubspec.yaml
+dev_dependencies:
+  ffigen: ^16.0.0
+```
+
+```yaml
+# ffigen.yaml
+output: 'lib/src/native_bindings.dart'
+headers:
+  entry-points:
+    - 'src/native_lib.h'
+```
+
+> **Flutter team vision**: The long-term direction is direct native interop via FFIgen + JNIgen, eliminating the need for method channels in many cases. However, Pigeon remains the practical, battle-tested choice for most platform channel needs today.
+
+### Swift Package Manager (iOS)
+
+Flutter 3.24+ supports Swift Package Manager for iOS dependencies. CocoaPods is now in maintenance mode - SPM is the recommended path forward:
+
+```bash
+# Enable SPM support
+flutter config --enable-swift-package-manager
+```
+
+### Native Assets (Experimental)
+
+Direct native dependency management without plugins:
+
+```yaml
+# pubspec.yaml
+# Native assets allow bundling C/C++ code directly
+# See: https://dart.dev/interop/c-interop for latest status
 ```
 
 ### Using Generated Code
@@ -582,20 +658,25 @@ class BiometricHandler(private val activity: FragmentActivity) {
 ## Best Practices
 
 1. **Single Responsibility**: One channel per feature domain
-2. **Type Safety**: Use Pigeon for complex APIs
+2. **Type Safety**: Use Pigeon 22.x+ for complex APIs (preferred over manual channels)
 3. **Error Handling**: Always handle PlatformException
 4. **Async Operations**: Use async/await, never block UI thread
 5. **Testing**: Mock channels in tests
 6. **Documentation**: Document channel contract clearly
 7. **Versioning**: Version your channel APIs
 8. **Performance**: Minimize data transfer, batch operations
+9. **Modern Alternatives**: Consider jnigen/ffigen for direct native binding when performance is critical
+10. **Swift Package Manager**: Use SPM for iOS native dependencies when possible (Flutter 3.24+)
 
 ## Expertise Boundaries
 
 **This agent handles:**
 - Platform channel architecture design
-- Type-safe interfaces with Pigeon
+- Type-safe interfaces with Pigeon (22.x+)
+- Direct native binding with jnigen and ffigen
 - Cross-platform coordination (iOS + Android)
+- Swift Package Manager integration for iOS
+- Native Assets (experimental) for native dependencies
 - Error handling patterns
 - Performance optimization
 

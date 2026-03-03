@@ -40,15 +40,19 @@ Your core expertise areas:
 ### Development Tools
 
 ```bash
-# Xcode (required)
+# Xcode 16+ (required for iOS 18 SDK)
 # Install from Mac App Store
-# Minimum version: Check Flutter requirements
+# Minimum: Xcode 15 for Flutter 3.22+
 
 # Command Line Tools
 xcode-select --install
 
-# CocoaPods (for dependencies)
+# CocoaPods (legacy - now in maintenance mode)
 sudo gem install cocoapods
+
+# Swift Package Manager (recommended, Flutter 3.24+)
+# SPM is replacing CocoaPods as the default dependency manager
+flutter config --enable-swift-package-manager
 
 # Verify Flutter iOS setup
 flutter doctor
@@ -180,7 +184,7 @@ open Runner.xcworkspace
    - Bundle Identifier: "com.yourcompany.appname"
    - Version: "1.0.0"
    - Build: "1"
-   - Minimum Deployments: iOS 12.0+
+   - Minimum Deployments: iOS 16.0+ (Flutter 3.22+ minimum)
 
 3. **Signing & Capabilities**:
    - Automatically manage signing: ☑️ (recommended)
@@ -250,6 +254,65 @@ open Runner.xcworkspace
 4. **Entitlements File Created**:
    - ios/Runner/Runner.entitlements
    - Contains capability configurations
+```
+
+### Privacy Manifests (Required since Spring 2024)
+
+```markdown
+## Privacy Manifest Requirements
+
+Apple requires a privacy manifest (PrivacyInfo.xcprivacy) for all apps.
+
+### Create Privacy Manifest:
+1. In Xcode: File → New → File → App Privacy
+2. Or create `ios/Runner/PrivacyInfo.xcprivacy` manually
+
+### Required Declarations:
+- **NSPrivacyTracking**: Whether app uses tracking (ATT)
+- **NSPrivacyTrackingDomains**: Domains used for tracking
+- **NSPrivacyCollectedDataTypes**: Data collected by the app
+- **NSPrivacyAccessedAPITypes**: Required API reasons
+
+### Common Required API Reasons:
+- File timestamp APIs (e.g., stat): Reason C617.1
+- User defaults APIs: Reason CA92.1
+- System boot time APIs: Reason 35F9.1
+- Disk space APIs: Reason E174.1
+```
+
+```xml
+<!-- ios/Runner/PrivacyInfo.xcprivacy -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>NSPrivacyTracking</key>
+  <false/>
+  <key>NSPrivacyTrackingDomains</key>
+  <array/>
+  <key>NSPrivacyCollectedDataTypes</key>
+  <array/>
+  <key>NSPrivacyAccessedAPITypes</key>
+  <array>
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array>
+        <string>C617.1</string>
+      </array>
+    </dict>
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array>
+        <string>CA92.1</string>
+      </array>
+    </dict>
+  </array>
+</dict>
+</plist>
 ```
 
 ## Build for Release
@@ -366,10 +429,11 @@ flutter build ipa --release
 - **Privacy Nutrition Labels**: Configure data collection
 
 ### Screenshots (Required):
+- **6.9" Display** (iPhone 16 Pro Max): 1320 x 2868 px
 - **6.7" Display** (iPhone 15 Pro Max): 1290 x 2796 px
 - **6.5" Display** (iPhone 11 Pro Max): 1242 x 2688 px
 - **5.5" Display** (iPhone 8 Plus): 1242 x 2208 px
-- **iPad Pro (12.9-inch)**: 2048 x 2732 px
+- **iPad Pro 13" (M4)**: 2064 x 2752 px
 - Upload 3-10 screenshots per device size
 
 ### App Preview (Optional):
@@ -391,7 +455,7 @@ flutter build ipa --release
 flutter pub add screenshots
 
 # Create screenshots.yaml
-# Run: flutter pub run screenshots:create
+# Run: dart run screenshots:create
 
 # Method 3: Use Fastlane snapshot
 # See Fastlane section below
@@ -724,24 +788,33 @@ flutter build ios
 ```markdown
 ## Common Rejection Reasons
 
-1. **Missing Permissions**:
+1. **Missing Privacy Manifest**:
+   - Must include PrivacyInfo.xcprivacy
+   - Declare all required API reasons
+   - Declare tracking and data collection
+
+2. **Missing Permissions**:
    - Add NSCameraUsageDescription, etc. in Info.plist
    - Provide clear explanation for each permission
 
-2. **Incomplete Metadata**:
+3. **Incomplete Metadata**:
    - Ensure all screenshots uploaded
    - Complete privacy policy URL
    - Fill all required fields
 
-3. **Crashes**:
+4. **Crashes**:
    - Test thoroughly on physical devices
    - Use TestFlight for beta testing
    - Fix all reported crashes
 
-4. **Guideline Violations**:
+5. **Guideline Violations**:
    - Review App Store Review Guidelines
    - Ensure app provides value
    - No private API usage
+
+6. **Minimum OS Version**:
+   - Ensure minimum deployment target is iOS 16.0+
+   - Required for Flutter 3.22+ apps
 
 ## Response to Rejection:
 1. Read rejection message carefully
@@ -750,6 +823,96 @@ flutter build ios
 4. Increment build number
 5. Upload new build
 6. Submit for review again
+```
+
+## App Attestation (iOS)
+
+```markdown
+## App Attestation with DeviceCheck Framework
+
+Apple's App Attest service verifies that requests come from legitimate
+instances of your app on genuine Apple devices.
+
+### Setup:
+1. Enable App Attest capability in Xcode
+2. Use DeviceCheck framework for attestation
+3. Verify attestation on your server
+
+### Use Cases:
+- Protect sensitive API endpoints
+- Prevent unauthorized access from modified apps
+- Complement server-side security measures
+
+### Implementation:
+- Use `DCAppAttestService` on iOS 14+
+- Generate attestation key on first launch
+- Attest key with Apple servers
+- Send attestation to your backend for verification
+- Use assertions for ongoing request validation
+```
+
+## Xcode Cloud Integration
+
+### Setup Xcode Cloud
+
+```markdown
+## Xcode Cloud for Flutter Apps
+
+Xcode Cloud is Apple's CI/CD service integrated directly into Xcode and App Store Connect.
+
+### Setup:
+1. **Xcode → Product → Xcode Cloud → Create Workflow**
+2. **Configure Workflow**:
+   - Branch: main (or release branches)
+   - Build action: Archive
+   - Post-action: TestFlight distribution
+
+### Custom Build Scripts:
+Flutter apps need custom CI scripts since Xcode Cloud doesn't natively support Flutter.
+
+Create these scripts in your project:
+```
+
+```bash
+# ci_scripts/ci_post_clone.sh
+#!/bin/sh
+
+# Install Flutter
+git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
+export PATH="$PATH:$HOME/flutter/bin"
+
+# Install Flutter dependencies
+flutter precache --ios
+flutter pub get
+
+# Generate code if needed
+dart run build_runner build --delete-conflicting-outputs
+
+# Build Flutter iOS artifacts
+flutter build ios --release --no-codesign
+```
+
+```bash
+# ci_scripts/ci_pre_xcodebuild.sh
+#!/bin/sh
+
+# Install CocoaPods dependencies
+cd $CI_PRIMARY_REPOSITORY_PATH/ios
+pod install
+```
+
+```markdown
+### Xcode Cloud Benefits:
+- Native Apple integration (no third-party CI setup)
+- Automatic TestFlight distribution
+- 25 compute hours/month free
+- Direct App Store Connect integration
+- Automatic notarization
+
+### Limitations:
+- Requires custom scripts for Flutter
+- Less flexible than GitHub Actions or Codemagic
+- macOS runners only
 ```
 
 ## CI/CD Integration
@@ -774,7 +937,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.16.0'
+          flutter-version: '3.41.0'
 
       - name: Install dependencies
         run: flutter pub get
@@ -806,10 +969,13 @@ jobs:
 - iOS code signing and certificates
 - TestFlight beta distribution
 - App Store Connect configuration
-- Xcode project setup
+- Xcode project setup (Xcode 16+)
+- Privacy Manifests (PrivacyInfo.xcprivacy)
+- Xcode Cloud CI/CD integration
 - Fastlane automation
 - iOS deployment troubleshooting
 - App Store submission process
+- Minimum deployment target iOS 16.0+
 
 **Outside this agent's scope:**
 - Android deployment → Use `flutter-android-deployment`

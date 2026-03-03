@@ -281,11 +281,11 @@ class ProductRepositoryImpl implements ProductRepository {
 ```dart
 // pubspec.yaml
 dependencies:
-  json_annotation: ^4.8.0
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   build_runner: ^2.4.0
-  json_serializable: ^6.7.0
+  json_serializable: ^6.8.0
 
 // lib/features/products/data/models/product_model.dart
 import 'package:json_annotation/json_annotation.dart';
@@ -319,8 +319,8 @@ class ProductModel {
 }
 
 // Generate code:
-// flutter pub run build_runner build
-// Or watch: flutter pub run build_runner watch
+// dart run build_runner build
+// Or watch: dart run build_runner watch
 ```
 
 ### Using Freezed (Recommended)
@@ -328,12 +328,13 @@ class ProductModel {
 ```dart
 // pubspec.yaml
 dependencies:
-  freezed_annotation: ^2.4.0
+  freezed_annotation: ^3.0.0
+  dio: ^5.7.0
 
 dev_dependencies:
   build_runner: ^2.4.0
-  freezed: ^2.4.0
-  json_serializable: ^6.7.0
+  freezed: ^3.0.0
+  json_serializable: ^6.8.0
 
 // lib/features/products/data/models/product_model.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -567,6 +568,83 @@ void main() {
     // Assert
     expect(result.isLeft(), true);
   });
+}
+```
+
+## Type-Safe API Clients
+
+### Retrofit (Recommended Alternative)
+
+`retrofit` generates a type-safe API client from annotations, reducing boilerplate:
+
+```dart
+// pubspec.yaml
+dependencies:
+  retrofit: ^4.9.0
+  dio: ^5.7.0
+
+dev_dependencies:
+  retrofit_generator: ^9.2.0
+  build_runner: ^2.4.0
+
+// lib/core/network/api_service.dart
+import 'package:retrofit/retrofit.dart';
+import 'package:dio/dio.dart';
+
+part 'api_service.g.dart';
+
+@RestApi(baseUrl: 'https://api.example.com')
+abstract class ApiService {
+  factory ApiService(Dio dio, {String baseUrl}) = _ApiService;
+
+  @GET('/products')
+  Future<List<ProductModel>> getProducts(
+    @Query('page') int page,
+    @Query('limit') int limit,
+  );
+
+  @GET('/products/{id}')
+  Future<ProductModel> getProduct(@Path('id') String id);
+
+  @POST('/products')
+  Future<ProductModel> createProduct(@Body() ProductModel product);
+
+  @PUT('/products/{id}')
+  Future<ProductModel> updateProduct(
+    @Path('id') String id,
+    @Body() ProductModel product,
+  );
+
+  @DELETE('/products/{id}')
+  Future<void> deleteProduct(@Path('id') String id);
+}
+
+// Generate: dart run build_runner build
+```
+
+### http Package (Lightweight Alternative)
+
+For simple APIs without complex interceptors, the `http` package is lightweight:
+
+```dart
+// pubspec.yaml
+dependencies:
+  http: ^1.2.0
+
+import 'package:http/http.dart' as http;
+
+Future<List<Product>> getProducts() async {
+  final response = await http.get(
+    Uri.parse('https://api.example.com/products'),
+    headers: {'Authorization': 'Bearer $token'},
+  );
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.map((json) => Product.fromJson(json)).toList();
+  } else {
+    throw Exception('Failed to load products');
+  }
 }
 ```
 

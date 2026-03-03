@@ -293,7 +293,7 @@ Container(
     borderRadius: BorderRadius.circular(12),
     boxShadow: [
       BoxShadow(
-        color: Colors.black.withOpacity(0.1),  // ✅ 10% opacity
+        color: Colors.black.withValues(alpha: 0.1),  // ✅ 10% opacity
         offset: const Offset(0, 4),  // ✅ 4px vertical offset
         blurRadius: 8,  // ✅ 8px blur
       ),
@@ -538,6 +538,37 @@ Target for next iteration: >90/100
 - [ ] Fidelity score calculated
 - [ ] Comparison report generated
 - [ ] Next steps defined
+
+## Automated Testing Tools
+
+### Golden Test Integration
+
+For automated visual regression testing, use golden tests alongside manual comparison:
+
+```dart
+// Golden tests validate UI consistency across changes
+// Use the built-in Flutter golden test framework:
+testWidgets('ProductCard matches golden', (tester) async {
+  await tester.pumpWidget(const MaterialApp(home: ProductCard()));
+  await expectLater(
+    find.byType(ProductCard),
+    matchesGoldenFile('goldens/product_card.png'),
+  );
+});
+
+// Alternative: golden_toolkit for more advanced golden tests
+// Provides multi-device golden testing, font loading, and CI support
+// dev_dependencies:
+//   golden_toolkit: ^0.15.0
+```
+
+### Flutter DevTools Integration
+
+Use the Flutter Inspector in DevTools to measure exact widget properties:
+- **Widget Inspector**: Examine padding, margins, and constraints in real-time
+- **Layout Explorer**: Visualize flex layouts and identify alignment issues
+- **Network tab**: Verify image loading and caching behavior
+- **Performance overlay**: Ensure UI comparison doesn't reveal performance issues
 
 ## Tools and Techniques
 

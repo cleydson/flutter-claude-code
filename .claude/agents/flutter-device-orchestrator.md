@@ -43,8 +43,8 @@ xcrun simctl list devicetypes
 # List available runtimes
 xcrun simctl list runtimes
 
-# Formatted output for specific runtime
-xcrun simctl list devices available --json | jq '.devices["com.apple.CoreSimulator.SimRuntime.iOS-17-2"]'
+# Formatted output for specific runtime (Xcode 16+ / iOS 18)
+xcrun simctl list devices available --json | jq '.devices["com.apple.CoreSimulator.SimRuntime.iOS-18-0"]'
 ```
 
 ### Launching iOS Simulators
@@ -59,21 +59,21 @@ open -a Simulator
 # Boot and open in one command
 xcrun simctl boot <DEVICE_ID> && open -a Simulator
 
-# Create a new simulator
-xcrun simctl create "iPhone 15 Pro Test" "iPhone 15 Pro" "iOS17.2"
+# Create a new simulator (Xcode 16+ with iOS 18)
+xcrun simctl create "iPhone 16 Pro Test" "iPhone 16 Pro" "iOS18.0"
 
-# Common device configurations
+# Common device configurations (2025+)
 # iPhone SE (3rd gen): compact phone
 xcrun simctl boot "iPhone SE (3rd generation)"
 
-# iPhone 15 Pro: standard phone
-xcrun simctl boot "iPhone 15 Pro"
+# iPhone 16 Pro: standard phone
+xcrun simctl boot "iPhone 16 Pro"
 
-# iPhone 15 Pro Max: large phone
-xcrun simctl boot "iPhone 15 Pro Max"
+# iPhone 16 Pro Max: large phone
+xcrun simctl boot "iPhone 16 Pro Max"
 
-# iPad Pro: tablet
-xcrun simctl boot "iPad Pro (12.9-inch) (6th generation)"
+# iPad Pro: tablet (M4)
+xcrun simctl boot "iPad Pro 13-inch (M4)"
 ```
 
 ### Installing and Running Flutter Apps on iOS
@@ -82,7 +82,9 @@ xcrun simctl boot "iPad Pro (12.9-inch) (6th generation)"
 # List connected Flutter devices
 flutter devices
 
-# Run app on specific simulator
+# Run app on specific simulator by device ID
+flutter run --device-id <DEVICE_ID>
+# Shorthand:
 flutter run -d <DEVICE_ID>
 
 # Run app on all iOS simulators
@@ -100,6 +102,10 @@ xcrun simctl install <DEVICE_ID> build/ios/iphonesimulator/Runner.app
 # Press 'r' to hot reload
 # Press 'R' to hot restart
 # Press 'p' to show performance overlay
+# Press 'w' to show widget inspector
+
+# Run with specific flavor/scheme
+flutter run -d <DEVICE_ID> --flavor dev
 ```
 
 ### Capturing Screenshots from iOS
@@ -185,53 +191,56 @@ avdmanager list device
 ### Creating Android Emulators
 
 ```bash
-# Create a new AVD
+# Create a new AVD (Android 15 / API 35)
 avdmanager create avd \
-  --name "Pixel_8_API_34" \
-  --package "system-images;android-34;google_apis;x86_64" \
-  --device "pixel_8"
+  --name "Pixel_9_API_35" \
+  --package "system-images;android-35;google_apis;x86_64" \
+  --device "pixel_9"
 
 # Create with specific settings
 avdmanager create avd \
-  --name "Pixel_Tablet_API_34" \
-  --package "system-images;android-34;google_apis;x86_64" \
+  --name "Pixel_Tablet_API_35" \
+  --package "system-images;android-35;google_apis;x86_64" \
   --device "pixel_tablet" \
   --sdcard 512M
 
-# Common device configurations
-# Pixel 8: standard phone (Android 14)
-avdmanager create avd --name "Pixel_8" --package "system-images;android-34;google_apis;x86_64" --device "pixel_8"
+# Common device configurations (2025+)
+# Pixel 9: standard phone (Android 15)
+avdmanager create avd --name "Pixel_9" --package "system-images;android-35;google_apis;x86_64" --device "pixel_9"
 
-# Pixel 8 Pro: large phone
-avdmanager create avd --name "Pixel_8_Pro" --package "system-images;android-34;google_apis;x86_64" --device "pixel_8_pro"
+# Pixel 9 Pro: large phone
+avdmanager create avd --name "Pixel_9_Pro" --package "system-images;android-35;google_apis;x86_64" --device "pixel_9_pro"
 
 # Pixel Tablet: tablet
-avdmanager create avd --name "Pixel_Tablet" --package "system-images;android-34;google_apis;x86_64" --device "pixel_tablet"
+avdmanager create avd --name "Pixel_Tablet" --package "system-images;android-35;google_apis;x86_64" --device "pixel_tablet"
 
 # Pixel Fold: foldable
-avdmanager create avd --name "Pixel_Fold" --package "system-images;android-34;google_apis;x86_64" --device "pixel_fold"
+avdmanager create avd --name "Pixel_Fold" --package "system-images;android-35;google_apis;x86_64" --device "pixel_fold"
+
+# Legacy Android 14 device for compatibility testing
+avdmanager create avd --name "Pixel_8_API_34" --package "system-images;android-34;google_apis;x86_64" --device "pixel_8"
 ```
 
 ### Launching Android Emulators
 
 ```bash
 # Launch emulator by name
-emulator -avd Pixel_8_API_34
+emulator -avd Pixel_9_API_35
 
 # Launch with specific options
-emulator -avd Pixel_8_API_34 \
+emulator -avd Pixel_9_API_35 \
   -no-snapshot-load \  # Don't load from snapshot
   -no-audio \          # Disable audio
   -gpu swiftshader_indirect  # Software rendering
 
 # Launch in headless mode (no UI)
-emulator -avd Pixel_8_API_34 -no-window
+emulator -avd Pixel_9_API_35 -no-window
 
 # Launch with increased RAM
-emulator -avd Pixel_8_API_34 -memory 4096
+emulator -avd Pixel_9_API_35 -memory 4096
 
 # Launch with specific resolution
-emulator -avd Pixel_8_API_34 -skin 1080x2400
+emulator -avd Pixel_9_API_35 -skin 1080x2400
 
 # Wait for emulator to boot
 adb wait-for-device
@@ -247,7 +256,9 @@ adb shell getprop sys.boot_completed
 adb devices
 flutter devices
 
-# Run on specific emulator
+# Run on specific emulator by device ID
+flutter run --device-id emulator-5554
+# Shorthand:
 flutter run -d emulator-5554
 
 # Run on all Android devices
@@ -265,6 +276,9 @@ adb uninstall com.example.app
 
 # Clear app data
 adb shell pm clear com.example.app
+
+# Run with specific flavor
+flutter run -d emulator-5554 --flavor dev
 ```
 
 ### Capturing Screenshots from Android
@@ -523,21 +537,21 @@ lsof -i :8080  # Check if port is in use
 ### Recommended iOS Simulator Setup
 
 ```bash
-# Create standard test devices
+# Create standard test devices (Xcode 16+ / iOS 18)
 # iPhone SE - Small phone
-xcrun simctl create "iPhone SE Test" "iPhone SE (3rd generation)" "iOS17.2"
+xcrun simctl create "iPhone SE Test" "iPhone SE (3rd generation)" "iOS18.0"
 
-# iPhone 15 Pro - Standard phone
-xcrun simctl create "iPhone 15 Pro Test" "iPhone 15 Pro" "iOS17.2"
+# iPhone 16 Pro - Standard phone
+xcrun simctl create "iPhone 16 Pro Test" "iPhone 16 Pro" "iOS18.0"
 
-# iPhone 15 Pro Max - Large phone
-xcrun simctl create "iPhone 15 Pro Max Test" "iPhone 15 Pro Max" "iOS17.2"
+# iPhone 16 Pro Max - Large phone
+xcrun simctl create "iPhone 16 Pro Max Test" "iPhone 16 Pro Max" "iOS18.0"
 
-# iPad Pro - Tablet
-xcrun simctl create "iPad Pro Test" "iPad Pro (12.9-inch) (6th generation)" "iOS17.2"
+# iPad Pro - Tablet (M4)
+xcrun simctl create "iPad Pro Test" "iPad Pro 13-inch (M4)" "iOS18.0"
 
 # Configure for clean testing
-for device in "iPhone SE Test" "iPhone 15 Pro Test" "iPhone 15 Pro Max Test" "iPad Pro Test"; do
+for device in "iPhone SE Test" "iPhone 16 Pro Test" "iPhone 16 Pro Max Test" "iPad Pro Test"; do
   device_id=$(xcrun simctl list devices | grep "$device" | grep -v "unavailable" | head -1 | awk -F'[()]' '{print $(NF-1)}')
   xcrun simctl boot $device_id
   xcrun simctl ui $device_id appearance light
@@ -551,21 +565,21 @@ done
 ```bash
 # Create standard test devices
 # Download system images first
+sdkmanager "system-images;android-35;google_apis;x86_64"
 sdkmanager "system-images;android-34;google_apis;x86_64"
-sdkmanager "system-images;android-33;google_apis;x86_64"
 
 # Create devices
-# Pixel 8 - Standard phone (Android 14)
-avdmanager create avd --name "Pixel_8_Test" --package "system-images;android-34;google_apis;x86_64" --device "pixel_8" --force
+# Pixel 9 - Standard phone (Android 15)
+avdmanager create avd --name "Pixel_9_Test" --package "system-images;android-35;google_apis;x86_64" --device "pixel_9" --force
 
-# Pixel 8 Pro - Large phone
-avdmanager create avd --name "Pixel_8_Pro_Test" --package "system-images;android-34;google_apis;x86_64" --device "pixel_8_pro" --force
+# Pixel 9 Pro - Large phone
+avdmanager create avd --name "Pixel_9_Pro_Test" --package "system-images;android-35;google_apis;x86_64" --device "pixel_9_pro" --force
 
 # Pixel Tablet - Tablet
-avdmanager create avd --name "Pixel_Tablet_Test" --package "system-images;android-34;google_apis;x86_64" --device "pixel_tablet" --force
+avdmanager create avd --name "Pixel_Tablet_Test" --package "system-images;android-35;google_apis;x86_64" --device "pixel_tablet" --force
 
-# Legacy Android 13 device
-avdmanager create avd --name "Pixel_7_Android13" --package "system-images;android-33;google_apis;x86_64" --device "pixel_7" --force
+# Legacy Android 14 device for compatibility testing
+avdmanager create avd --name "Pixel_8_Android14" --package "system-images;android-34;google_apis;x86_64" --device "pixel_8" --force
 ```
 
 ## Output Standards

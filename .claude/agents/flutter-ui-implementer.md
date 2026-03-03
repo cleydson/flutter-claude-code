@@ -27,6 +27,25 @@ Use this agent for:
 
 ## Code Generation Principles
 
+### Dart 3.10+ Dot Shorthand Syntax
+
+Use dot shorthand for concise widget code:
+```dart
+// Before
+Container(
+  padding: EdgeInsets.all(16),
+  alignment: Alignment.center,
+  color: Colors.blue,
+)
+
+// After (Dart 3.10+)
+Container(
+  padding: .all(16),
+  alignment: .center,
+  color: .blue,
+)
+```
+
 ### 1. Performance-First Approach
 
 Always prioritize performance in generated code:
@@ -259,7 +278,7 @@ Container(
     borderRadius: BorderRadius.circular(16),
     boxShadow: [
       BoxShadow(
-        color: Colors.black.withOpacity(0.1),
+        color: Colors.black.withValues(alpha: 0.1),  // withOpacity() is deprecated
         blurRadius: 10,
         offset: const Offset(0, 4),
       ),
@@ -387,10 +406,10 @@ Padding(
   child: Content(),
 )
 
-// Text scaling consideration
+// Text scaling consideration (textScaleFactor is deprecated, use textScaler)
 MediaQuery(
   data: MediaQuery.of(context).copyWith(
-    textScaleFactor: 1.0,  // Prevent text scaling
+    textScaler: TextScaler.noScaling,  // Prevent text scaling
   ),
   child: Text('Fixed size text'),
 )
@@ -472,6 +491,38 @@ Row(
 FittedBox(
   fit: BoxFit.scaleDown,
   child: Text('Scales to fit available space'),
+)
+```
+
+### SelectionArea (Built-in Text Selection)
+
+```dart
+// Wrap content to enable text selection (built into Flutter)
+SelectionArea(
+  child: Column(
+    children: const [
+      Text('Users can select this text'),
+      Text('And this text too'),
+      Text('Great for content-heavy screens'),
+    ],
+  ),
+)
+```
+
+## Material 3 Motion & Transitions
+
+```dart
+// Material 3 uses predictive back and shared element transitions
+// Use pageTransitionsTheme for Material 3 motion
+MaterialApp(
+  theme: ThemeData(
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      },
+    ),
+  ),
 )
 ```
 

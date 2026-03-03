@@ -30,17 +30,21 @@ dev_dependencies:
     sdk: flutter
 
   # Mocking
-  mockito: ^5.4.0
-  mocktail: ^1.0.0
+  mockito: ^5.4.4
+  mocktail: ^1.0.4
 
   # BLoC testing
-  bloc_test: ^9.1.0
+  bloc_test: ^9.1.7
 
   # Code generation for mocks
   build_runner: ^2.4.0
 
   # Golden tests
   golden_toolkit: ^0.15.0
+  alchemist: ^0.10.0  # Modern alternative to golden_toolkit
+
+  # Advanced integration testing
+  patrol: ^4.0.0  # Leading E2E test framework with native automation
 
   # Network mocking
   http_mock_adapter: ^0.6.0
@@ -196,7 +200,7 @@ import 'package:myapp/data/datasources/products_local_datasource.dart';
 ])
 void main() {}
 
-// Run: flutter pub run build_runner build
+// Run: dart run build_runner build
 ```
 
 ```dart
@@ -808,8 +812,92 @@ void main() {
 ### Update Goldens
 
 ```bash
-# Update golden files
+# Update golden files (improved workflow in recent Flutter versions)
 flutter test --update-goldens
+
+# Update goldens for specific test file
+flutter test --update-goldens test/widget/golden/product_card_golden_test.dart
+
+# Using alchemist for golden tests (modern alternative)
+# alchemist provides better CI support and platform-aware golden files
+```
+
+## Riverpod Testing
+
+### Testing with ProviderContainer
+
+```dart
+void main() {
+  test('authProvider returns authenticated state', () async {
+    final mockRepository = MockAuthRepository();
+    when(() => mockRepository.getCurrentUser())
+        .thenAnswer((_) async => Right(testUser));
+
+    final container = ProviderContainer(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(mockRepository),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    // For AsyncNotifier providers
+    final authState = await container.read(authProvider.future);
+    expect(authState, isA<Authenticated>());
+  });
+
+  test('counterProvider increments correctly', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    expect(container.read(counterProvider), 0);
+    container.read(counterProvider.notifier).increment();
+    expect(container.read(counterProvider), 1);
+  });
+}
+```
+
+### Widget Testing with Riverpod
+
+```dart
+testWidgets('displays user name from provider', (tester) async {
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        userProvider.overrideWith((ref) => testUser),
+      ],
+      child: const MaterialApp(home: UserPage()),
+    ),
+  );
+
+  expect(find.text(testUser.name), findsOneWidget);
+});
+```
+
+## Patrol Integration Testing
+
+### Advanced Native Integration Tests
+
+```dart
+// integration_test/app_test.dart
+import 'package:patrol/patrol.dart';
+
+void main() {
+  patrolTest('login flow with native interactions', ($) async {
+    await $.pumpWidgetAndSettle(const MyApp());
+
+    // Patrol can interact with native UI elements
+    await $.native.enterText(
+      Selector(text: 'Email'),
+      text: 'test@example.com',
+    );
+
+    // Handle native permission dialogs
+    await $.native.grantPermissionWhenInUse();
+
+    // Handle native system dialogs
+    await $.native.tap(Selector(text: 'Allow'));
+  });
+}
 ```
 
 ## Test Coverage

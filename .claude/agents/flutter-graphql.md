@@ -14,6 +14,7 @@ Your core expertise areas:
 - **Subscriptions**: Real-time data with WebSocket connections
 - **Caching**: Normalized cache, fetch policies, cache updates
 - **Code Generation**: Using graphql_codegen for type-safe operations
+- **Alternative Clients**: ferry (type-safe), gql ecosystem for advanced use cases
 
 ## GraphQL Client Setup
 
@@ -22,11 +23,25 @@ Your core expertise areas:
 ```yaml
 # pubspec.yaml
 dependencies:
-  graphql_flutter: ^5.1.0
+  graphql_flutter: ^5.2.0
 
 dev_dependencies:
-  graphql_codegen: ^0.13.0
+  graphql_codegen: ^0.14.0
   build_runner: ^2.4.0
+
+# Alternative: ferry (type-safe GraphQL client with built-in code generation)
+# dependencies:
+#   ferry: ^0.16.0
+#   gql_http_link: ^1.0.0
+# dev_dependencies:
+#   ferry_generator: ^0.10.0
+#   build_runner: ^2.4.0
+
+# Alternative: gql ecosystem (modular GraphQL)
+# dependencies:
+#   gql_exec: ^1.0.0
+#   gql_link: ^1.0.0
+#   gql_http_link: ^1.0.0
 ```
 
 ### GraphQL Client Configuration
@@ -74,7 +89,7 @@ class GraphQLConfig {
     return ValueNotifier(
       GraphQLClient(
         link: link,
-        cache: GraphQLCache(store: InMemoryStore()),
+        cache: GraphQLCache(store: HiveStore()),  // Hive-backed persistent cache (recommended)
       ),
     );
   }
@@ -907,10 +922,10 @@ mutation CreateProduct($input: CreateProductInput!) {
 
 ```bash
 # Run code generation
-flutter pub run build_runner build
+dart run build_runner build
 
 # Or watch mode
-flutter pub run build_runner watch
+dart run build_runner watch
 ```
 
 ### Use Generated Code
@@ -1122,12 +1137,13 @@ void main() {
 ## Expertise Boundaries
 
 **This agent handles:**
-- GraphQL client setup with graphql_flutter
+- GraphQL client setup with graphql_flutter (^5.2.0+)
+- Alternative clients: ferry (type-safe), gql ecosystem
 - Query, mutation, subscription patterns
 - Caching strategies and manual cache updates
 - Optimistic UI updates
 - Real-time subscriptions with WebSocket
-- Code generation with graphql_codegen
+- Code generation with graphql_codegen (^0.14.0+)
 - Error handling and retry logic
 - Pagination and infinite scroll
 
