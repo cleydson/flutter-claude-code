@@ -37,17 +37,25 @@ await storage.deleteAll();
 ### ✅ Secure Storage Configuration
 
 ```dart
-// Android: Use EncryptedSharedPreferences
+// Android: Use EncryptedSharedPreferences (default in v9+)
 // iOS: Uses Keychain by default
 
 const secureStorage = FlutterSecureStorage(
   aOptions: AndroidOptions(
     encryptedSharedPreferences: true,
+    // Require device authentication to access
+    // sharedPreferencesName: 'secure_prefs',
+    // preferencesKeyPrefix: 'app_',
   ),
   iOptions: IOSOptions(
-    accessibility: KeychainAccessibility.first_unlock,
+    accessibility: KeychainAccessibility.first_unlock_this_device,
+    // Use first_unlock_this_device for data that shouldn't transfer to new devices
+    // Use first_unlock for data that can migrate via backup
   ),
 );
+
+// Recommended: Use --dart-define for compile-time environment config
+// flutter build --dart-define=ENV=production
 ```
 
 ## API Security
@@ -74,24 +82,31 @@ final dio = Dio(BaseOptions(
 
 ```dart
 import 'package:dio/dio.dart';
-import 'package:dio/adapter.dart';
+import 'package:dio/io.dart';
+import 'dart:io';
 
 class SecureApiClient {
   final Dio dio;
 
   SecureApiClient() : dio = Dio() {
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (client) {
-      client.badCertificateCallback = (cert, host, port) {
-        // Certificate pinning
-        final certSha256 = sha256.convert(cert.der).toString();
-        const expectedHash = 'YOUR_CERTIFICATE_SHA256_HASH';
-        return certSha256 == expectedHash;
-      };
-      return client;
-    };
+    // Dio 5.x certificate pinning pattern
+    dio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: () {
+        final client = HttpClient();
+        client.badCertificateCallback = (cert, host, port) {
+          // Certificate pinning - compare SHA-256 fingerprint
+          final certSha256 = sha256.convert(cert.der).toString();
+          const expectedHash = 'YOUR_CERTIFICATE_SHA256_HASH';
+          return certSha256 == expectedHash;
+        };
+        return client;
+      },
+    );
   }
 }
+
+// Alternative: Use http_certificate_pinning package for easier management
+// import 'package:http_certificate_pinning/http_certificate_pinning.dart';
 ```
 
 ## Authentication Security
@@ -168,13 +183,16 @@ class AuthService {
 
 ```dart
 import 'package:local_auth/local_auth.dart';
+import 'package:local_auth_android/local_auth_android.dart';
+import 'package:local_auth_darwin/local_auth_darwin.dart';
 
 class BiometricAuth {
   final LocalAuthentication _auth = LocalAuthentication();
 
   Future<bool> canCheckBiometrics() async {
     try {
-      return await _auth.canCheckBiometrics;
+      // Check both biometrics and device credentials
+      return await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
     } catch (e) {
       return false;
     }
@@ -190,14 +208,27 @@ class BiometricAuth {
 
   Future<bool> authenticate({
     required String localizedReason,
+    bool biometricOnly = false,
   }) async {
     try {
       return await _auth.authenticate(
         localizedReason: localizedReason,
-        options: const AuthenticationOptions(
+        options: AuthenticationOptions(
           stickyAuth: true,
-          biometricOnly: true,
+          biometricOnly: biometricOnly,
+          sensitiveTransaction: true,
         ),
+        authMessages: const <AuthMessages>[
+          AndroidAuthMessages(
+            signInTitle: 'Authentication Required',
+            cancelButton: 'Cancel',
+            biometricHint: 'Verify your identity',
+          ),
+          IOSAuthMessages(
+            cancelButton: 'Cancel',
+            lockOut: 'Please re-enable biometrics',
+          ),
+        ],
       );
     } catch (e) {
       return false;
@@ -219,6 +250,19 @@ if (await biometricAuth.canCheckBiometrics()) {
 }
 ```
 
+**iOS Configuration Required:**
+```xml
+<!-- ios/Runner/Info.plist -->
+<key>NSFaceIDUsageDescription</key>
+<string>We use Face ID to securely authenticate you</string>
+```
+
+**Android Configuration Required:**
+```xml
+<!-- android/app/src/main/AndroidManifest.xml -->
+<uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+```
+
 ## Data Encryption
 
 ### ✅ Encrypt Sensitive Data
@@ -227,28 +271,39 @@ if (await biometricAuth.canCheckBiometrics()) {
 import 'package:encrypt/encrypt.dart';
 
 class DataEncryption {
-  static final _key = Key.fromSecureRandom(32);
-  static final _iv = IV.fromSecureRandom(16);
-  static final _encrypter = Encrypter(AES(_key));
+  // ⚠️ NEVER use static keys/IVs - generate and store securely
+  final Key _key;
+  final Encrypter _encrypter;
 
-  static String encrypt(String plainText) {
-    final encrypted = _encrypter.encrypt(plainText, iv: _iv);
-    return encrypted.base64;
+  DataEncryption._(this._key) : _encrypter = Encrypter(AES(_key));
+
+  /// Create with a securely stored key
+  static Future<DataEncryption> create() async {
+    final keyString = await KeyManager.getOrCreateKey();
+    final key = Key.fromBase64(keyString);
+    return DataEncryption._(key);
   }
 
-  static String decrypt(String encryptedText) {
-    final encrypted = Encrypted.fromBase64(encryptedText);
-    return _encrypter.decrypt(encrypted, iv: _iv);
+  String encrypt(String plainText) {
+    // Generate a fresh IV for each encryption
+    final iv = IV.fromSecureRandom(16);
+    final encrypted = _encrypter.encrypt(plainText, iv: iv);
+    // Prepend IV to ciphertext for decryption
+    return '${iv.base64}:${encrypted.base64}';
+  }
+
+  String decrypt(String encryptedText) {
+    final parts = encryptedText.split(':');
+    final iv = IV.fromBase64(parts[0]);
+    final encrypted = Encrypted.fromBase64(parts[1]);
+    return _encrypter.decrypt(encrypted, iv: iv);
   }
 }
 
-// Store encrypted data
-final encrypted = DataEncryption.encrypt(sensitiveData);
-await prefs.setString('encrypted_data', encrypted);
-
-// Read and decrypt
-final encrypted = prefs.getString('encrypted_data') ?? '';
-final decrypted = DataEncryption.decrypt(encrypted);
+// Usage
+final encryption = await DataEncryption.create();
+final encrypted = encryption.encrypt(sensitiveData);
+await secureStorage.write(key: 'encrypted_data', value: encrypted);
 ```
 
 ### ✅ Secure Key Storage
@@ -377,10 +432,6 @@ class InputValidator {
 ```xml
 <!-- ios/Runner/Info.plist -->
 
-<!-- Prevent screenshots -->
-<key>UIApplicationExitsOnSuspend</key>
-<false/>
-
 <!-- App Transport Security -->
 <key>NSAppTransportSecurity</key>
 <dict>
@@ -390,6 +441,49 @@ class InputValidator {
   <false/>
 </dict>
 ```
+
+### ✅ iOS Privacy Manifests (Required since iOS 17 / Xcode 15)
+
+Apple requires Privacy Manifests (`PrivacyInfo.xcprivacy`) for apps and SDKs that use certain APIs.
+
+```xml
+<!-- ios/Runner/PrivacyInfo.xcprivacy -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>NSPrivacyTracking</key>
+  <false/>
+  <key>NSPrivacyTrackingDomains</key>
+  <array/>
+  <key>NSPrivacyCollectedDataTypes</key>
+  <array>
+    <!-- Declare data types your app collects -->
+  </array>
+  <key>NSPrivacyAccessedAPITypes</key>
+  <array>
+    <!-- Declare required reason APIs your app uses -->
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array>
+        <string>CA92.1</string>
+      </array>
+    </dict>
+  </array>
+</dict>
+</plist>
+```
+
+**Privacy Manifest Checklist:**
+- [ ] `PrivacyInfo.xcprivacy` added to Xcode project
+- [ ] Required Reason APIs declared (UserDefaults, file timestamp, disk space, etc.)
+- [ ] Data collection types documented
+- [ ] Third-party SDK privacy manifests included
+- [ ] Tracking domains declared (if applicable)
+- [ ] App Store submission includes privacy nutrition labels
 
 ## Code Obfuscation
 
@@ -606,26 +700,67 @@ class PermissionManager {
 
 ### ✅ Environment Variables
 
-```dart
-// Use flutter_dotenv for environment variables
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+```bash
+# Preferred: Use --dart-define-from-file (compile-time, no runtime dependency)
+# Create env.json (ADD TO .gitignore!)
+# {
+#   "API_KEY": "your_api_key_here",
+#   "API_URL": "https://api.example.com"
+# }
 
-// .env file (ADD TO .gitignore!)
-// API_KEY=your_api_key_here
-// API_URL=https://api.example.com
-
-// Load in main()
-await dotenv.load(fileName: ".env");
-
-// Access
-final apiKey = dotenv.env['API_KEY'];
-final apiUrl = dotenv.env['API_URL'];
-
-// ❌ NEVER commit .env to git!
-// Add to .gitignore:
-# .env
-# .env.production
+flutter run --dart-define-from-file=env.json
+flutter build apk --dart-define-from-file=env.json
 ```
+
+```dart
+// Access compile-time environment variables in Dart
+class EnvConfig {
+  static const apiKey = String.fromEnvironment('API_KEY');
+  static const apiUrl = String.fromEnvironment('API_URL',
+    defaultValue: 'https://api.example.com');
+}
+
+// Usage
+final response = await dio.get(
+  '${EnvConfig.apiUrl}/data',
+  options: Options(headers: {'X-API-Key': EnvConfig.apiKey}),
+);
+
+// ❌ NEVER commit env.json to git!
+// Add to .gitignore:
+// env.json
+// env.*.json
+```
+
+### ✅ App Attestation & Integrity Verification
+
+```dart
+// iOS: App Attest (DeviceCheck framework)
+// Verifies app authenticity to your backend
+// Use package: app_attest or implement via platform channels
+
+// Android: Play Integrity API (replaces SafetyNet)
+// Verifies device and app integrity
+// Use package: play_integrity
+
+// Implementation pattern:
+class IntegrityService {
+  /// Request integrity token and send to backend for verification
+  Future<bool> verifyAppIntegrity() async {
+    // 1. Request a nonce from your backend
+    // 2. Request integrity token from platform API
+    // 3. Send token to your backend for verification
+    // 4. Backend verifies with Google/Apple servers
+    throw UnimplementedError('Implement per platform');
+  }
+}
+```
+
+**Checklist:**
+- [ ] App Attest configured for iOS (DeviceCheck framework)
+- [ ] Play Integrity API configured for Android
+- [ ] Backend verification endpoint implemented
+- [ ] Fallback handling for unsupported devices
 
 ## Common Vulnerabilities
 

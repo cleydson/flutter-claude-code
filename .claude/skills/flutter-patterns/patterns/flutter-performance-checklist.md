@@ -7,6 +7,41 @@ description: Pre-deployment performance checklist for Flutter apps. Comprehensiv
 
 Complete pre-deployment checklist to ensure optimal app performance.
 
+## Rendering Engine
+
+### ✅ Impeller Renderer
+
+Impeller is Flutter's modern rendering engine, replacing Skia. It is the default on iOS (Flutter 3.16+) and Android (Flutter 3.22+).
+
+- [ ] Impeller enabled (default on iOS and Android in Flutter 3.22+)
+- [ ] Shader compilation jank eliminated (Impeller pre-compiles all shaders)
+- [ ] No runtime shader compilation pauses
+- [ ] Test rendering on both iOS and Android with Impeller
+- [ ] Report any Impeller rendering issues to Flutter team
+
+```bash
+# Impeller is enabled by default. To explicitly control:
+# iOS: Impeller is always enabled (cannot be disabled since Flutter 3.24)
+# Android: Enabled by default since Flutter 3.22
+flutter run --enable-impeller   # Explicitly enable
+flutter run --no-enable-impeller # Disable (fallback to Skia, Android only)
+
+# Profile with Impeller
+flutter run --profile  # Impeller active by default
+```
+
+**Key Impeller Benefits:**
+- Pre-compiled shaders eliminate first-run jank
+- Predictable, consistent frame times
+- Better utilization of modern GPU hardware
+- No more `--trace-skia` needed for shader warmup analysis
+- Simplified performance profiling
+
+**Migration Notes:**
+- Custom shader effects (FragmentProgram) work differently with Impeller
+- Some advanced Skia-specific features may render slightly differently
+- Canvas saveLayer operations are more performant with Impeller
+
 ## Build Performance
 
 ### ✅ Release Build Configuration
@@ -100,8 +135,10 @@ ListView.builder(
 - [ ] Using cacheWidth/cacheHeight for network images
 - [ ] Placeholder for slow-loading images
 - [ ] Error handling for failed image loads
-- [ ] Image caching strategy implemented
-- [ ] Using appropriate image formats (WebP recommended)
+- [ ] Image caching strategy implemented (cached_network_image)
+- [ ] Using appropriate image formats (WebP or AVIF recommended)
+- [ ] Using resolution-aware asset variants (1x, 2x, 3x)
+- [ ] Consider using vector graphics (flutter_svg) for icons/illustrations
 
 ```dart
 // ✅ Good
@@ -176,25 +213,34 @@ Selector<CartProvider, int>(
 - [ ] Heavy operations run in isolates
 - [ ] Synchronous operations < 16ms
 - [ ] No blocking operations on UI thread
-- [ ] Using compute() for heavy processing
+- [ ] Using Isolate.run() or compute() for heavy processing
 
 ```dart
-// ✅ Good - Heavy work in isolate
+// ✅ Best - Dart 3 Isolate.run() (simpler API, preferred)
 Future<List<Product>> filterProducts(List<Product> products) async {
+  return await Isolate.run(() {
+    // Heavy filtering logic runs in separate isolate
+    return products.where((p) => p.isActive).toList();
+  });
+}
+
+// ✅ Also Good - compute() (legacy API, still supported)
+Future<List<Product>> filterProductsLegacy(List<Product> products) async {
   return await compute(_filterProducts, products);
 }
 
 List<Product> _filterProducts(List<Product> products) {
-  // Heavy filtering logic
   return products.where((p) => p.isActive).toList();
 }
 ```
+
+> **Note**: `Isolate.run()` (Dart 3+) is preferred over `compute()` as it supports closures directly without requiring a top-level function.
 
 ## Animation Performance
 
 ### ✅ Animation Optimization
 
-- [ ] Animations run at 60fps (frames < 16ms)
+- [ ] Animations run at 60fps+ (frames < 16ms, < 8ms for 120fps devices)
 - [ ] Using AnimatedBuilder for custom animations
 - [ ] Complex animations use RepaintBoundary
 - [ ] Disposal of animation controllers
@@ -322,17 +368,20 @@ class _MyWidgetState extends State<MyWidget> {
 - [ ] No red frames in performance overlay
 - [ ] CPU usage reasonable (< 50% idle)
 - [ ] Memory stable (no continuous growth)
-- [ ] Shader compilation issues resolved
+- [ ] Shader compilation issues resolved (Impeller eliminates most shader jank)
 - [ ] No layout/paint issues in Timeline
 
 ```bash
 # Enable performance overlay
-flutter run --profile --trace-skia
+flutter run --profile
 
 # Run profiling
 flutter run --profile
 # Press 'p' to toggle performance overlay
 # Press 'v' to open DevTools
+
+# Note: --trace-skia is only needed when using Skia backend
+# Impeller pre-compiles all shaders, eliminating shader compilation jank
 ```
 
 ### ✅ Performance Metrics
@@ -340,25 +389,25 @@ flutter run --profile
 - [ ] Cold start < 3 seconds
 - [ ] Warm start < 1 second
 - [ ] Hot reload < 500ms
-- [ ] Frame rendering time < 16ms (60fps)
-- [ ] Scrolling smooth at 60fps
-- [ ] Animations smooth at 60fps
+- [ ] Frame rendering time < 16ms (60fps) or < 8ms (120fps on ProMotion/high-refresh devices)
+- [ ] Scrolling smooth at 60fps (120fps on supported devices)
+- [ ] Animations smooth at 60fps (120fps on supported devices)
 
 ## Platform-Specific
 
 ### ✅ iOS Performance
 
-- [ ] Metal rendering enabled
-- [ ] Bitcode enabled (if required)
-- [ ] Deployment target set appropriately
+- [ ] Impeller rendering active (default, uses Metal)
+- [ ] Deployment target set appropriately (iOS 13.0+ minimum)
 - [ ] No warnings in Xcode build
 - [ ] Instruments profiling clean
+- [ ] Privacy Manifests configured (required since iOS 17)
 
 ### ✅ Android Performance
 
 - [ ] R8/ProGuard optimized
 - [ ] Multidex configured (if needed)
-- [ ] minSdkVersion appropriate (21+)
+- [ ] minSdkVersion appropriate (23+ recommended, 21 minimum)
 - [ ] targetSdkVersion latest stable
 - [ ] No ANRs (Application Not Responding)
 
@@ -417,18 +466,20 @@ Rate your app in each category (0-10):
 ```bash
 # Performance profiling
 flutter run --profile
-flutter run --release --trace-skia
 
 # Analyze app size
 flutter build apk --analyze-size
 flutter build appbundle --analyze-size
 
-# Check for unused code
-dart pub global activate dart_code_metrics
-dart pub global run dart_code_metrics:metrics analyze lib
+# Check for unused code with dart_code_linter (formerly dart_code_metrics)
+dart pub global activate dart_code_linter
+dart run dart_code_linter:lint analyze lib
 
 # Memory profiling
 # Use DevTools Memory tab during runtime
+
+# Note: With Impeller as default renderer, --trace-skia is rarely needed
+# Impeller eliminates shader compilation jank entirely
 ```
 
 ## Quick Performance Wins

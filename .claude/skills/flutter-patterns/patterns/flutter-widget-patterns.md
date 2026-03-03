@@ -438,9 +438,11 @@ class DetailsPage extends StatelessWidget {
 }
 ```
 
-## Responsive Layout Pattern
+## Responsive Layout Pattern (Legacy)
 
 ```dart
+// See "Responsive Layout Pattern (Updated Breakpoints)" below
+// for Material 3 WindowSizeClass breakpoints
 class ResponsiveLayout extends StatelessWidget {
   final Widget mobile;
   final Widget? tablet;
@@ -538,6 +540,271 @@ class ProductsPage extends StatelessWidget {
             },
           ),
         );
+      },
+    );
+  }
+}
+```
+
+## Material 3 Widget Patterns
+
+### SearchAnchor (Material 3 Search)
+
+```dart
+// Material 3 search bar with suggestions
+SearchAnchor(
+  builder: (context, controller) {
+    return SearchBar(
+      controller: controller,
+      padding: const WidgetStatePropertyAll(
+        EdgeInsets.symmetric(horizontal: 16),
+      ),
+      onTap: () => controller.openView(),
+      onChanged: (_) => controller.openView(),
+      leading: const Icon(Icons.search),
+      hintText: 'Search products...',
+    );
+  },
+  suggestionsBuilder: (context, controller) {
+    final query = controller.text.toLowerCase();
+    return items
+        .where((item) => item.name.toLowerCase().contains(query))
+        .map((item) => ListTile(
+              title: Text(item.name),
+              onTap: () {
+                controller.closeView(item.name);
+                // Navigate to item
+              },
+            ))
+        .toList();
+  },
+)
+```
+
+### SegmentedButton (Material 3)
+
+```dart
+// Single selection
+SegmentedButton<String>(
+  segments: const [
+    ButtonSegment(value: 'day', label: Text('Day'), icon: Icon(Icons.today)),
+    ButtonSegment(value: 'week', label: Text('Week'), icon: Icon(Icons.view_week)),
+    ButtonSegment(value: 'month', label: Text('Month'), icon: Icon(Icons.calendar_month)),
+  ],
+  selected: {_selectedView},
+  onSelectionChanged: (Set<String> newSelection) {
+    setState(() => _selectedView = newSelection.first);
+  },
+)
+
+// Multi-selection
+SegmentedButton<String>(
+  segments: const [
+    ButtonSegment(value: 'S', label: Text('S')),
+    ButtonSegment(value: 'M', label: Text('M')),
+    ButtonSegment(value: 'L', label: Text('L')),
+    ButtonSegment(value: 'XL', label: Text('XL')),
+  ],
+  selected: _selectedSizes,
+  onSelectionChanged: (Set<String> newSelection) {
+    setState(() => _selectedSizes = newSelection);
+  },
+  multiSelectionEnabled: true,
+)
+```
+
+### NavigationBar (Material 3)
+
+```dart
+// Material 3 bottom navigation (replaces BottomNavigationBar)
+Scaffold(
+  bottomNavigationBar: NavigationBar(
+    selectedIndex: _currentIndex,
+    onDestinationSelected: (index) {
+      setState(() => _currentIndex = index);
+    },
+    destinations: const [
+      NavigationDestination(
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home),
+        label: 'Home',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.search_outlined),
+        selectedIcon: Icon(Icons.search),
+        label: 'Search',
+      ),
+      NavigationDestination(
+        icon: Badge(child: Icon(Icons.notifications_outlined)),
+        selectedIcon: Badge(child: Icon(Icons.notifications)),
+        label: 'Alerts',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.person_outlined),
+        selectedIcon: Icon(Icons.person),
+        label: 'Profile',
+      ),
+    ],
+  ),
+  body: _screens[_currentIndex],
+)
+```
+
+### DropdownMenu (Material 3 - Replaces DropdownButton)
+
+```dart
+// Material 3 dropdown menu with search/filtering
+DropdownMenu<String>(
+  initialSelection: _selectedCategory,
+  label: const Text('Category'),
+  leadingIcon: const Icon(Icons.category),
+  enableFilter: true,
+  requestFocusOnTap: true,
+  onSelected: (String? value) {
+    setState(() => _selectedCategory = value);
+  },
+  dropdownMenuEntries: categories.map((category) {
+    return DropdownMenuEntry(
+      value: category.id,
+      label: category.name,
+      leadingIcon: Icon(category.icon),
+    );
+  }).toList(),
+)
+```
+
+### FilledButton & Button Styles (Material 3)
+
+```dart
+// Material 3 button hierarchy
+FilledButton(
+  onPressed: () {},
+  child: const Text('Primary Action'),
+)
+
+FilledButton.tonal(
+  onPressed: () {},
+  child: const Text('Secondary Action'),
+)
+
+OutlinedButton(
+  onPressed: () {},
+  child: const Text('Tertiary Action'),
+)
+
+TextButton(
+  onPressed: () {},
+  child: const Text('Low Emphasis'),
+)
+
+// Note: MaterialStateProperty was renamed to WidgetStateProperty in Flutter 3.19+
+FilledButton(
+  onPressed: () {},
+  style: ButtonStyle(
+    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
+    shape: WidgetStatePropertyAll(
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+  ),
+  child: const Text('Styled Button'),
+)
+```
+
+### Badge (Material 3)
+
+```dart
+// Small notification badge
+Badge(
+  label: Text('3'),
+  child: Icon(Icons.notifications),
+)
+
+// Badge without label (dot indicator)
+Badge(
+  smallSize: 8,
+  child: Icon(Icons.mail),
+)
+
+// Badge on NavigationDestination (see NavigationBar pattern above)
+```
+
+### SelectionArea
+
+```dart
+// Make text selectable in a region (Flutter 3.3+)
+SelectionArea(
+  child: Column(
+    children: [
+      Text('This text is selectable'),
+      Text('So is this text'),
+      Text('Users can select across multiple Text widgets'),
+    ],
+  ),
+)
+```
+
+### DecoratedSliver
+
+```dart
+// Apply decoration to sliver content
+CustomScrollView(
+  slivers: [
+    const SliverAppBar.large(
+      title: Text('Products'),
+    ),
+    DecoratedSliver(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      sliver: SliverList.builder(
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(items[index].name),
+            subtitle: Text(items[index].description),
+          );
+        },
+      ),
+    ),
+  ],
+)
+```
+
+## Responsive Layout Pattern (Updated Breakpoints)
+
+```dart
+// Material 3 recommended breakpoints (WindowSizeClass)
+class ResponsiveLayout extends StatelessWidget {
+  final Widget compact;   // < 600dp (phones)
+  final Widget? medium;   // 600-839dp (tablets portrait, foldables)
+  final Widget? expanded; // 840-1199dp (tablets landscape)
+  final Widget? large;    // 1200-1599dp (desktops)
+  final Widget? extraLarge; // >= 1600dp (large desktops)
+
+  const ResponsiveLayout({
+    required this.compact,
+    this.medium,
+    this.expanded,
+    this.large,
+    this.extraLarge,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 1600) {
+          return extraLarge ?? large ?? expanded ?? medium ?? compact;
+        } else if (constraints.maxWidth >= 1200) {
+          return large ?? expanded ?? medium ?? compact;
+        } else if (constraints.maxWidth >= 840) {
+          return expanded ?? medium ?? compact;
+        } else if (constraints.maxWidth >= 600) {
+          return medium ?? compact;
+        } else {
+          return compact;
+        }
       },
     );
   }

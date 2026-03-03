@@ -36,32 +36,43 @@ See [patterns/flutter-widget-patterns.md](patterns/flutter-widget-patterns.md) f
 - Dialog and bottom sheet patterns
 - Loading and empty states
 - Navigation patterns
-- Responsive layouts
+- Material 3 widgets (SearchAnchor, SegmentedButton, NavigationBar, DropdownMenu)
+- DecoratedSliver patterns
+- Responsive layouts (with Material 3 WindowSizeClass breakpoints)
 
 ### Testing Patterns
 See [patterns/flutter-testing-patterns.md](patterns/flutter-testing-patterns.md) for:
 - Unit test structure and best practices
 - Widget testing approaches
 - Integration test patterns
-- Mock and stub strategies
+- Mock and stub strategies (Mockito and Mocktail)
+- BLoC testing with bloc_test
+- Riverpod testing patterns
+- Patrol testing for native interactions
+- Golden test patterns
 - Test organization and naming conventions
 - Coverage best practices
 
 ### Performance Patterns
 See [patterns/flutter-performance-checklist.md](patterns/flutter-performance-checklist.md) for:
+- Impeller rendering engine considerations
 - Build method optimization
 - Widget rebuilding minimization
 - List and grid performance
-- Image loading optimization
+- Image loading optimization (WebP/AVIF, caching)
 - Memory leak prevention
+- Isolate.run() for background computation
 - Rendering performance tips
+- Shader compilation (resolved by Impeller)
 
 ### Security Patterns
 See [patterns/flutter-security-patterns.md](patterns/flutter-security-patterns.md) for:
 - Input validation and sanitization
-- Secure storage practices
-- API security best practices
+- Secure storage practices (flutter_secure_storage)
+- API security and certificate pinning (Dio 5.x)
 - Authentication and authorization patterns
+- Biometric authentication (Face ID, fingerprint)
+- iOS Privacy Manifests (required since iOS 17)
 - Data encryption approaches
 - Common vulnerability prevention (XSS, injection, etc.)
 
@@ -72,7 +83,8 @@ See [patterns/flutter-animation-patterns.md](patterns/flutter-animation-patterns
 - Hero animations
 - Page transitions
 - Implicit animations
-- Physics-based animations
+- Material 3 motion patterns (shared axis, container transform)
+- Impeller animation performance notes
 - Custom animation patterns
 
 ## Usage Examples

@@ -685,15 +685,219 @@ class _SlideAndFadeState extends State<SlideAndFade>
 }
 ```
 
+## TweenAnimationBuilder (No Controller Needed)
+
+```dart
+// Simple declarative animation without AnimationController
+TweenAnimationBuilder<double>(
+  tween: Tween(begin: 0.0, end: _isExpanded ? 1.0 : 0.0),
+  duration: const Duration(milliseconds: 300),
+  builder: (context, value, child) {
+    return Transform.scale(
+      scale: 0.8 + (0.2 * value),
+      child: Opacity(
+        opacity: value,
+        child: child,
+      ),
+    );
+  },
+  child: const Card(child: Text('Animated content')),
+)
+```
+
+## AnimatedSwitcher
+
+```dart
+// Animate between different child widgets
+AnimatedSwitcher(
+  duration: const Duration(milliseconds: 300),
+  transitionBuilder: (child, animation) {
+    return FadeTransition(
+      opacity: animation,
+      child: ScaleTransition(
+        scale: animation,
+        child: child,
+      ),
+    );
+  },
+  child: _showFirst
+      ? const Icon(Icons.check, key: ValueKey('check'))
+      : const Icon(Icons.close, key: ValueKey('close')),
+  // Key is essential for AnimatedSwitcher to detect changes
+)
+```
+
+## AnimatedList & SliverAnimatedList
+
+```dart
+// Animated insertion/removal of list items
+final _listKey = GlobalKey<AnimatedListState>();
+
+AnimatedList(
+  key: _listKey,
+  initialItemCount: items.length,
+  itemBuilder: (context, index, animation) {
+    return SizeTransition(
+      sizeFactor: animation,
+      child: ListTile(title: Text(items[index])),
+    );
+  },
+)
+
+// Insert item with animation
+void _addItem(String item) {
+  items.insert(0, item);
+  _listKey.currentState?.insertItem(0);
+}
+
+// Remove item with animation
+void _removeItem(int index) {
+  final removedItem = items.removeAt(index);
+  _listKey.currentState?.removeItem(
+    index,
+    (context, animation) => SizeTransition(
+      sizeFactor: animation,
+      child: ListTile(title: Text(removedItem)),
+    ),
+  );
+}
+```
+
+## Third-Party Animation Libraries
+
+```dart
+// flutter_animate - Declarative animation composition
+// dependencies: flutter_animate: ^4.5.0
+import 'package:flutter_animate/flutter_animate.dart';
+
+Text('Hello')
+    .animate()
+    .fadeIn(duration: 600.ms)
+    .slideY(begin: 0.3, end: 0)
+    .then(delay: 200.ms) // Chain with delay
+    .shake();
+
+// Rive - Interactive vector animations
+// dependencies: rive: ^0.13.0
+// Great for complex interactive animations designed in the Rive editor
+
+// Lottie - After Effects animations
+// dependencies: lottie: ^3.0.0
+// Import animations from LottieFiles
+```
+
+## Material 3 Motion Patterns
+
+### Emphasis Transition (Material 3)
+
+```dart
+// Material 3 uses easing and duration tokens
+// Standard: Curves.easeInOutCubicEmphasized, 500ms
+// Entering: Curves.easeOutCubic, 400ms
+// Exiting: Curves.easeInCubic, 200ms
+
+class M3PageTransition extends PageRouteBuilder {
+  final Widget page;
+
+  M3PageTransition({required this.page})
+      : super(
+          transitionDuration: const Duration(milliseconds: 500),
+          reverseTransitionDuration: const Duration(milliseconds: 200),
+          pageBuilder: (context, animation, secondaryAnimation) => page,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            final fadeIn = Tween(begin: 0.0, end: 1.0).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              ),
+            );
+
+            final slideIn = Tween(
+              begin: const Offset(0.0, 0.05),
+              end: Offset.zero,
+            ).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOutCubicEmphasized,
+              ),
+            );
+
+            return FadeTransition(
+              opacity: fadeIn,
+              child: SlideTransition(
+                position: slideIn,
+                child: child,
+              ),
+            );
+          },
+        );
+}
+```
+
+### Shared Axis Transition (Material 3)
+
+```dart
+// Using the animations package for Material 3 transitions
+// dependencies: animations: ^2.0.0
+import 'package:animations/animations.dart';
+
+// Shared axis transition between pages
+PageRouteBuilder sharedAxisRoute(Widget page) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => page,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SharedAxisTransition(
+        animation: animation,
+        secondaryAnimation: secondaryAnimation,
+        transitionType: SharedAxisTransitionType.horizontal,
+        child: child,
+      );
+    },
+  );
+}
+
+// Container transform (expand from card to full page)
+OpenContainer(
+  closedBuilder: (context, openContainer) {
+    return ListTile(
+      title: Text(item.title),
+      onTap: openContainer,
+    );
+  },
+  openBuilder: (context, closeContainer) {
+    return DetailPage(item: item);
+  },
+)
+```
+
+## Impeller Animation Performance Notes
+
+**Impeller** (Flutter's modern rendering engine) provides significant animation improvements:
+
+1. **No Shader Compilation Jank**: Impeller pre-compiles all shaders at build time, eliminating the first-run jank that was common with Skia
+2. **Consistent Frame Times**: More predictable rendering performance across frames
+3. **Better GPU Utilization**: Impeller is designed for modern GPU architectures (Metal on iOS, Vulkan on Android)
+4. **Simplified Profiling**: No need to warm up shaders or use `--trace-skia`
+
+**Animation Best Practices with Impeller:**
+- RepaintBoundary is still valuable for isolating animated subtrees
+- Transform operations remain more efficient than layout-based animations
+- Complex custom painters and shader effects work differently - test thoroughly
+- saveLayer operations are more performant with Impeller than Skia
+
 ## Usage Tips
 
 1. **Performance**: Use `RepaintBoundary` for complex animations
 2. **Dispose**: Always dispose controllers in `dispose()`
 3. **vsync**: Use `SingleTickerProviderStateMixin` or `TickerProviderStateMixin`
-4. **Curves**: Experiment with different curves (easeIn, easeOut, elasticOut, etc.)
-5. **Duration**: Typical durations:
+4. **Curves**: Use Material 3 easing tokens:
+   - `Curves.easeInOutCubicEmphasized` (standard M3 emphasis)
+   - `Curves.easeOutCubic` (entering elements)
+   - `Curves.easeInCubic` (exiting elements)
+5. **Duration**: Material 3 duration recommendations:
    - Micro interactions: 100-200ms
-   - Standard transitions: 300-500ms
+   - Standard transitions: 300-500ms (M3 standard: 500ms)
    - Complex animations: 500-1000ms
+6. **Impeller**: Shader jank is eliminated - animations are smooth from first frame
 
 These patterns provide smooth, professional animations for Flutter apps.

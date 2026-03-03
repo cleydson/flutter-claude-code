@@ -341,7 +341,7 @@ import 'package:mockito/mockito.dart';
 @GenerateMocks([UserRepository, AuthService])
 void main() {}
 
-// Run: flutter pub run build_runner build
+// Run: dart run build_runner build
 ```
 
 ### Mock with Return Value
@@ -609,5 +609,144 @@ await expectLater(stream, emitsInOrder([1, 2, 3]));
 8. **Test edge cases**: Empty lists, null values, errors
 9. **Golden tests for UI**: Catch visual regressions
 10. **Integration tests for flows**: Test complete user journeys
+
+## Riverpod Testing Patterns
+
+### Testing a Riverpod Provider
+
+```dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('counter provider increments', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    expect(container.read(counterProvider), 0);
+
+    container.read(counterProvider.notifier).increment();
+
+    expect(container.read(counterProvider), 1);
+  });
+}
+```
+
+### Testing Riverpod with Overrides
+
+```dart
+test('user repository returns mock data', () async {
+  final container = ProviderContainer(
+    overrides: [
+      userRepositoryProvider.overrideWithValue(MockUserRepository()),
+    ],
+  );
+  addTearDown(container.dispose);
+
+  final users = await container.read(usersProvider.future);
+  expect(users, hasLength(2));
+});
+```
+
+### Widget Test with Riverpod
+
+```dart
+testWidgets('displays user name from provider', (tester) async {
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        userProvider.overrideWith((ref) => User(name: 'Test User')),
+      ],
+      child: const MaterialApp(home: UserProfilePage()),
+    ),
+  );
+
+  expect(find.text('Test User'), findsOneWidget);
+});
+```
+
+### Testing AsyncNotifier
+
+```dart
+test('async notifier loads and updates data', () async {
+  final container = ProviderContainer(
+    overrides: [
+      apiClientProvider.overrideWithValue(MockApiClient()),
+    ],
+  );
+  addTearDown(container.dispose);
+
+  // Initial state is loading
+  expect(
+    container.read(productsProvider),
+    const AsyncValue<List<Product>>.loading(),
+  );
+
+  // Wait for data to load
+  await container.read(productsProvider.future);
+
+  // Verify loaded state
+  final state = container.read(productsProvider);
+  expect(state.value, isNotNull);
+  expect(state.value!, hasLength(greaterThan(0)));
+});
+```
+
+## Patrol Testing Patterns
+
+### Basic Patrol Test
+
+```dart
+import 'package:patrol/patrol.dart';
+
+void main() {
+  patrolTest('login flow works end-to-end', ($) async {
+    await $.pumpWidgetAndSettle(const MyApp());
+
+    // Patrol provides concise finders
+    await $(#emailField).enterText('test@example.com');
+    await $(#passwordField).enterText('password123');
+    await $('Login').tap();
+
+    // Wait for navigation
+    await $.pumpAndSettle();
+
+    expect($('Welcome'), findsOneWidget);
+  });
+}
+```
+
+### Patrol Native Interaction Test
+
+```dart
+patrolTest('handles native permission dialog', ($) async {
+  await $.pumpWidgetAndSettle(const MyApp());
+
+  await $('Enable Location').tap();
+
+  // Interact with native iOS/Android permission dialog
+  await $.native.grantPermissionWhenInUse();
+
+  await $.pumpAndSettle();
+  expect($('Location enabled'), findsOneWidget);
+});
+```
+
+### Patrol with Custom Finders
+
+```dart
+patrolTest('product list scrolls and loads more', ($) async {
+  await $.pumpWidgetAndSettle(const MyApp());
+
+  // Navigate to products
+  await $(Icons.shopping_bag).tap();
+  await $.pumpAndSettle();
+
+  // Scroll down to trigger pagination
+  await $(#productList).scrollTo(find.text('Product 20'));
+
+  expect($('Product 20'), findsOneWidget);
+});
+```
 
 These patterns provide comprehensive test coverage for Flutter applications.
