@@ -28,11 +28,10 @@ This Flutter development ecosystem consists of **19 specialized agents** and **1
    - Flutter Architect
    - Flutter State Management Specialist
 
-3. **Platform-Specific Development** (4 agents)
+3. **Platform-Specific Development** (3 agents)
    - iOS Integration Specialist
    - Android Integration Specialist
    - Platform Channel Architect
-   - Device Orchestrator
 
 4. **API Integration & Backend Connectivity** (4 agents)
    - Flutter REST API Specialist
@@ -259,12 +258,49 @@ To add a new agent:
 - Practical usage examples
 - Accurate tool requirements
 
+### Dart 3 Coding Standards
+
+When writing or updating code examples in agents and skills:
+
+- **Use Dart 3 syntax**: Records, patterns, sealed classes, class modifiers
+- **Prefer `switch` expressions** over `switch` statements where appropriate
+- **Use pattern matching** for type checks and destructuring
+- **Use `final` by default** for local variables; `var` only when mutation is needed
+- **Use `Isolate.run()`** instead of `compute()` for background work
+- **Use `dart run`** instead of `flutter pub run` for build_runner and other tools
+- **Prefer `const` constructors** everywhere possible
+- **Use `sealed` classes** for state/event hierarchies (BLoC, Riverpod)
+- **Use enhanced enums** with methods and fields
+- **Use records** for returning multiple values instead of tuples or custom classes
+
+```dart
+// Dart 3 patterns example
+sealed class Result<T> {
+  const Result();
+}
+final class Success<T> extends Result<T> {
+  final T value;
+  const Success(this.value);
+}
+final class Failure<T> extends Result<T> {
+  final String message;
+  const Failure(this.message);
+}
+
+// Pattern matching
+final message = switch (result) {
+  Success(value: final v) => 'Got: $v',
+  Failure(message: final m) => 'Error: $m',
+};
+```
+
 ### Testing Standards
 
 - Test with multiple Flutter versions
 - Verify cross-platform behavior
 - Check edge cases
 - Validate error handling
+- Use `dart run` instead of `flutter pub run` for code generation
 
 ---
 
@@ -289,13 +325,15 @@ To add a new agent:
 
 ## License
 
-This project is open source. See LICENSE for details.
+This project is open source.
 
 ---
 
 ## Acknowledgments
 
 Built on the official Flutter documentation at https://docs.flutter.dev
+
+See `ARCHITECTURE_NOTES.md` for modern Flutter architecture recommendations including Impeller, Dart 3, and platform requirements.
 
 ---
 

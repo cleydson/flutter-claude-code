@@ -35,6 +35,7 @@ See [PLUGIN_INSTALLATION.md](PLUGIN_INSTALLATION.md) for detailed installation i
 - **[AGENT_USAGE_SCENARIOS.md](AGENT_USAGE_SCENARIOS.md)** - Practical usage examples
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contributing guidelines and architecture reference
 - **[WORKFLOW_DIAGRAMS.md](WORKFLOW_DIAGRAMS.md)** - Visual workflow diagrams
+- **[ARCHITECTURE_NOTES.md](ARCHITECTURE_NOTES.md)** - Technical architecture notes
 
 ## System Architecture
 
@@ -233,13 +234,6 @@ flutter-claude-code/
 └── flutter-*/                     # Plugin directories
 ```
 
-## Getting Started
-
-1. **Install** the plugins using the instructions in `PLUGIN_INSTALLATION.md`
-2. **Explore** practical usage examples in `AGENT_USAGE_SCENARIOS.md`
-3. **Review** workflow diagrams in `WORKFLOW_DIAGRAMS.md`
-4. **Start** building with the agents that match your needs
-
 ## Contributing
 
 Contributions are welcome! See `CONTRIBUTING.md` for guidelines on:
@@ -288,9 +282,9 @@ The modular architecture allows you to start with the core design-to-implementat
 
 ---
 
-**Total Agents**: 15 specialized sub-agents
-**Total Phases**: 5 implementation phases
+**Total Agents**: 19 specialized agents
+**Total Categories**: 6 agent categories
+**Total Skills**: 1 comprehensive patterns skill
 **Coverage**: Complete Flutter development lifecycle
 **Platforms**: iOS, Android (with Web/Desktop extensibility)
 **Documentation Base**: Official Flutter docs at https://docs.flutter.dev
-**Status**: Ready for implementation

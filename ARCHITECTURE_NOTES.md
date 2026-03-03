@@ -69,6 +69,30 @@ Using symlinks instead of file duplication provides several benefits:
 - IDE files (`.vscode/`, `.idea/`)
 - Backup files (`*.bak`, `*.backup`)
 
+## Modern Flutter Architecture Recommendations
+
+### Rendering Engine
+- **Impeller** is the default rendering engine on iOS and Android (Flutter 3.22+)
+- All performance guidance should account for Impeller's pre-compiled shaders
+- Skia is deprecated as the default backend
+
+### Dart Language
+- Target **Dart 3.x** features: records, patterns, sealed classes, class modifiers
+- Use `Isolate.run()` instead of `compute()` for background processing
+- Use `dart run` instead of `flutter pub run` for CLI tools
+- Prefer `--dart-define` and `--dart-define-from-file` for environment configuration
+
+### State Management
+- **Riverpod 2.x** is the recommended modern approach for new projects
+- **BLoC** remains excellent for large team projects
+- Both support code generation for reduced boilerplate
+
+### Platform Requirements
+- **iOS**: Privacy Manifests required since iOS 17/Xcode 15
+- **Android**: Target SDK 34+ for Play Store submissions
+- **Minimum iOS**: 13.0+ recommended
+- **Minimum Android**: API 21+ (SDK 21)
+
 ## Future Considerations
 
 ### Potential Expansions

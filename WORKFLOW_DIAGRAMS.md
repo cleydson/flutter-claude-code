@@ -235,6 +235,8 @@ graph TB
     CAT1 --> AGENT12[Agent 1.2<br/>UI Implementer]
     CAT1 --> AGENT13[Agent 1.3<br/>Device Orchestrator]
     CAT1 --> AGENT14[Agent 1.4<br/>UI Comparison]
+    CAT1 --> AGENT21[Agent 2.1<br/>Architect]
+    CAT1 --> AGENT22[Agent 2.2<br/>State Mgmt]
 
     CAT2 --> AGENT31[Agent 3.1<br/>iOS Integration]
     CAT2 --> AGENT32[Agent 3.2<br/>Android Integration]
@@ -245,6 +247,7 @@ graph TB
     CAT3 --> AGENT51[Agent 5.1<br/>REST API]
     CAT3 --> AGENT52[Agent 5.2<br/>Firebase]
     CAT3 --> AGENT53[Agent 5.3<br/>AWS Integration]
+    CAT3 --> AGENT54[Agent 5.4<br/>GraphQL]
     CAT3 --> AGENT61[Agent 6.1<br/>Testing]
 
     RESULT[COMPLETE FLUTTER APPLICATION<br/>• Pixel-perfect UI<br/>• Clean architecture<br/>• Platform features<br/>• Backend integration<br/>• Optimized performance<br/>• Comprehensive tests<br/>• Deployed to stores]
@@ -253,6 +256,8 @@ graph TB
     AGENT12 --> RESULT
     AGENT13 --> RESULT
     AGENT14 --> RESULT
+    AGENT21 --> RESULT
+    AGENT22 --> RESULT
     AGENT31 --> RESULT
     AGENT32 --> RESULT
     AGENT33 --> RESULT
@@ -261,6 +266,7 @@ graph TB
     AGENT51 --> RESULT
     AGENT52 --> RESULT
     AGENT53 --> RESULT
+    AGENT54 --> RESULT
     AGENT61 --> RESULT
 
     style RESULT fill:#e1f5fe,stroke:#01579b,stroke-width:3px

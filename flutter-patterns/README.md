@@ -7,35 +7,37 @@ Comprehensive Flutter development patterns skill covering widgets, testing, perf
 This skill provides quick reference for Flutter best practices across five key areas:
 
 ### Widget Patterns
+- Material 3 widgets (SearchAnchor, SegmentedButton, NavigationBar, DropdownMenu)
+- DecoratedSliver patterns
 - StatefulWidget vs StatelessWidget usage
-- InheritedWidget for data propagation
 - Builder patterns and performance optimization
-- Key usage and widget identity
+- Responsive layouts with Material 3 WindowSizeClass breakpoints
 
 ### Testing Patterns
 - Unit testing patterns and best practices
 - Widget testing with finders and matchers
 - Integration testing setup
-- BLoC testing patterns
-- Mocking strategies with Mockito
+- BLoC and Riverpod testing patterns
+- Patrol native interaction testing
+- Mocking strategies with Mockito and Mocktail
 
 ### Performance Patterns
+- Impeller rendering engine considerations
+- Isolate.run() for background computation
 - Const constructors and immutability
-- Keys for widget identity
 - ListView.builder for efficient lists
 - RepaintBoundary for optimization
-- Animation optimization
 
 ### Security Patterns
-- Secure storage implementation
-- API key and credential management
-- SSL pinning for network security
-- Authentication best practices
+- Secure storage implementation (flutter_secure_storage)
+- Certificate pinning (Dio 5.x patterns)
+- iOS Privacy Manifests (required since iOS 17)
+- Biometric authentication (Face ID, fingerprint)
 - Data encryption patterns
 
 ### Animation Patterns
-- AnimationController usage
-- Tween animations
+- Material 3 motion patterns (shared axis, container transform)
+- Impeller animation performance notes
 - Hero animations
 - Implicit vs Explicit animations
 - Custom animation curves

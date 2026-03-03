@@ -81,7 +81,7 @@ If you only need specific functionality, install individual plugin categories:
 
 ## Using the Agents
 
-After installation, agents are available via the Task tool. Example:
+After installation, agents are available via the Agent tool. Example:
 
 ```
 I need to implement a login screen from this Figma design
@@ -200,8 +200,8 @@ Check the main README.md for detailed agent documentation and usage scenarios.
 
 ## Contributing
 
-See IMPLEMENTATION_GUIDE.md for information about the agent architecture and how to contribute new agents or improvements.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for information about the agent architecture and how to contribute new agents or improvements.
 
 ## License
 
-This project is open source. See LICENSE for details.
+This project is open source.

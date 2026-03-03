@@ -19,11 +19,11 @@ This document provides practical examples of how to use the Flutter agent ecosys
 User: "I have a login screen design at /designs/login_screen.png.
 Please create a pixel-perfect Flutter implementation of this design."
 
-Agent 1.5 (Design Iteration Coordinator) will:
-1. Invoke Agent 1.1 (UI Designer) to analyze the design
-2. Invoke Agent 1.2 (UI Implementer) to generate code
-3. Invoke Agent 1.3 (Device Orchestrator) to run on simulator
-4. Invoke Agent 1.4 (UI Comparison) to validate accuracy
+flutter-design-iteration-coordinator will:
+1. Invoke flutter-ui-designer to analyze the design
+2. Invoke flutter-ui-implementer to generate code
+3. Invoke flutter-device-orchestrator to run on simulator
+4. Invoke flutter-ui-comparison to validate accuracy
 5. Iterate until >95% fidelity achieved
 ```
 
@@ -48,7 +48,7 @@ Agent 1.5 (Design Iteration Coordinator) will:
 featuring authentication, product catalog, shopping cart, and checkout."
 ```
 
-**Agent 2.1 (Flutter Architect) will:**
+**flutter-architect will:**
 
 1. Create folder structure:
 ```
@@ -88,7 +88,7 @@ lib/
 4. Create base classes and interfaces
 5. Set up state management structure
 
-**Agent 2.2 (State Management Specialist) will:**
+**flutter-state-management will:**
 1. Recommend BLoC for this medium-large app
 2. Set up flutter_bloc package
 3. Create base BLoC classes
@@ -118,7 +118,7 @@ Create a platform channel that allows me to capture photos with manual
 exposure and focus control."
 ```
 
-**Agent 3.3 (Platform Channel Architect) will:**
+**flutter-platform-channel-architect will:**
 
 1. Design platform channel architecture:
 ```dart
@@ -143,7 +143,7 @@ class NativeCameraService {
 }
 ```
 
-**Agent 3.1 (iOS Integration Specialist) will:**
+**flutter-ios-integration will:**
 
 2. Create iOS implementation:
 ```swift
@@ -202,24 +202,24 @@ class CameraChannel {
 plus Firestore for storing user profiles and posts."
 ```
 
-**Agent 5.2 (Firebase Expert) will:**
+**flutter-firebase will:**
 
 1. Configure Firebase project:
 ```bash
 # Install FlutterFire CLI
 dart pub global activate flutterfire_cli
 
-# Configure Firebase
+# Configure Firebase (generates firebase_options.dart)
 flutterfire configure
 ```
 
 2. Add dependencies:
 ```yaml
 dependencies:
-  firebase_core: ^2.24.0
-  firebase_auth: ^4.15.0
-  google_sign_in: ^6.1.5
-  cloud_firestore: ^4.13.0
+  firebase_core: ^3.8.0
+  firebase_auth: ^5.4.0
+  google_sign_in: ^6.2.2
+  cloud_firestore: ^5.6.0
 ```
 
 3. Create authentication service:
@@ -293,7 +293,7 @@ class FirestoreService {
 }
 ```
 
-**Agent 3.1 (iOS Integration) & Agent 3.2 (Android Integration) will:**
+**flutter-ios-integration & flutter-android-integration will:**
 
 5. Configure platform-specific settings:
 
@@ -342,7 +342,7 @@ dependencies {
 App version is 1.2.0, build 5."
 ```
 
-**Agent 6.2 (iOS Deployment) will:**
+**flutter-ios-deployment will:**
 
 1. Update version in `pubspec.yaml`:
 ```yaml
@@ -404,7 +404,7 @@ xcrun altool --upload-app \
 App version is 1.2.0, build 5."
 ```
 
-**Agent 6.3 (Android Deployment) will:**
+**flutter-android-deployment will:**
 
 1. Update version in `pubspec.yaml`:
 ```yaml
@@ -499,7 +499,7 @@ flutter build apk --split-per-abi --release
 Help me identify and fix the performance issues."
 ```
 
-**Agent 4.1 (Performance Analyzer) will:**
+**flutter-performance-analyzer will:**
 
 1. Profile the app with DevTools:
 ```bash
@@ -507,7 +507,7 @@ Help me identify and fix the performance issues."
 flutter run --profile
 
 # Open DevTools
-flutter pub global run devtools
+dart devtools
 ```
 
 2. Analyze performance issues:
@@ -538,7 +538,7 @@ Performance Issues Detected:
    - Fix: Add RepaintBoundary wrapper
 ```
 
-**Agent 4.2 (Performance Optimizer) will:**
+**flutter-performance-optimizer will:**
 
 4. Implement fixes:
 
@@ -681,12 +681,12 @@ Status: OPTIMIZED ✓
 fingerprint/face unlock on Android) to the login screen."
 ```
 
-**Agent 3.1 (iOS Integration) + Agent 3.2 (Android Integration) will:**
+**flutter-ios-integration + flutter-android-integration will:**
 
 1. Add dependencies:
 ```yaml
 dependencies:
-  local_auth: ^2.1.7
+  local_auth: ^2.3.0
 ```
 
 2. Configure iOS (`ios/Runner/Info.plist`):
@@ -823,7 +823,7 @@ class LoginScreen extends StatelessWidget {
 3. Build and deploy to Play Store internal testing on merge to main"
 ```
 
-**Agent 6.2 (iOS Deployment) + Agent 6.3 (Android Deployment) will:**
+**flutter-ios-deployment + flutter-android-deployment will:**
 
 1. Create `.github/workflows/test.yml`:
 ```yaml
@@ -837,11 +837,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.16.0'
+          flutter-version: '3.29.x'
 
       - name: Install dependencies
         run: flutter pub get
@@ -853,7 +853,7 @@ jobs:
         run: flutter test --coverage
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           files: ./coverage/lcov.info
 ```
@@ -870,11 +870,11 @@ jobs:
   deploy-ios:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.16.0'
+          flutter-version: '3.29.x'
 
       - name: Install dependencies
         run: flutter pub get
@@ -912,16 +912,16 @@ jobs:
   deploy-android:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.16.0'
+          flutter-version: '3.29.x'
 
       - name: Decode keystore
         env:
@@ -958,19 +958,19 @@ jobs:
 
 | Scenario | Primary Agent(s) | Supporting Agent(s) |
 |----------|-----------------|-------------------|
-| Convert design to UI | 1.5 (Iteration Coordinator) | 1.1, 1.2, 1.3, 1.4 |
-| New project setup | 2.1 (Architect) | 2.2 (State Management) |
-| Native iOS feature | 3.1 (iOS Integration) | 3.3 (Platform Channels) |
-| Native Android feature | 3.2 (Android Integration) | 3.3 (Platform Channels) |
-| REST API integration | 5.1 (REST API) | 2.2 (State Management) |
-| Firebase integration | 5.2 (Firebase) | 3.1, 3.2 (Platform configs) |
-| AWS integration | 5.3 (AWS) | 2.2 (State Management) |
-| GraphQL integration | 5.4 (GraphQL) | 2.2 (State Management) |
-| Performance issues | 4.1 (Analyzer) | 4.2 (Optimizer) |
-| Add tests | 6.1 (Testing Expert) | - |
-| Deploy to App Store | 6.2 (iOS Deployment) | - |
-| Deploy to Play Store | 6.3 (Android Deployment) | - |
-| Both deployments | 6.2, 6.3 (Both Deployment) | - |
+| Convert design to UI | flutter-design-iteration-coordinator | flutter-ui-designer, flutter-ui-implementer, flutter-device-orchestrator, flutter-ui-comparison |
+| New project setup | flutter-architect | flutter-state-management |
+| Native iOS feature | flutter-ios-integration | flutter-platform-channel-architect |
+| Native Android feature | flutter-android-integration | flutter-platform-channel-architect |
+| REST API integration | flutter-rest-api | flutter-state-management |
+| Firebase integration | flutter-firebase | flutter-ios-integration, flutter-android-integration |
+| AWS integration | flutter-aws | flutter-state-management |
+| GraphQL integration | flutter-graphql | flutter-state-management |
+| Performance issues | flutter-performance-analyzer | flutter-performance-optimizer |
+| Add tests | flutter-testing | - |
+| Deploy to App Store | flutter-ios-deployment | - |
+| Deploy to Play Store | flutter-android-deployment | - |
+| Both deployments | flutter-ios-deployment, flutter-android-deployment | - |
 
 ---
 
