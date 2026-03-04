@@ -1,290 +1,64 @@
-# Flutter Development Ecosystem - Complete Agent Architecture
+# Flutter Development Agents for Claude Code
 
-This repository contains a comprehensive Flutter development ecosystem powered by 19 specialized Claude Code agents and skills, available as modular plugins.
-
-## Overview
-
-This system provides **19 specialized agents** and **1 comprehensive skill** organized into **6 categories** that enable seamless Flutter development from design to production deployment on iOS and Android.
+19 specialized agents + 1 patterns skill for end-to-end Flutter development — from Figma design to App Store deployment.
 
 ## Installation
 
-This repository is structured as a Claude Code plugin marketplace. You can install everything at once or choose specific categories:
-
-### Install Everything (Recommended)
 ```bash
+# Add marketplace
 /plugin marketplace add https://github.com/cleydson/flutter-claude-code
+
+# Install everything (recommended)
 /plugin install flutter-all@flutter-claude-code
 ```
 
-### Install Specific Categories
-```bash
-/plugin install flutter-ui@flutter-claude-code                    # UI & Design agents
-/plugin install flutter-testing-performance@flutter-claude-code   # Testing & Performance
-/plugin install flutter-architecture@flutter-claude-code          # Architecture & State Management
-/plugin install flutter-platform@flutter-claude-code              # Platform Integration
-/plugin install flutter-backend@flutter-claude-code               # Backend Integration
-/plugin install flutter-deployment@flutter-claude-code            # iOS & Android Deployment
-/plugin install flutter-patterns@flutter-claude-code              # Patterns & Best Practices Skill
-```
+### Individual Categories
 
-See [PLUGIN_INSTALLATION.md](PLUGIN_INSTALLATION.md) for detailed installation instructions and plugin documentation.
+| Category | Install Command | Includes |
+|----------|----------------|----------|
+| UI & Design | `/plugin install flutter-ui@flutter-claude-code` | ui-designer, ui-implementer, ui-comparison, design-iteration-coordinator |
+| Architecture | `/plugin install flutter-architecture@flutter-claude-code` | architect, state-management |
+| Platform | `/plugin install flutter-platform@flutter-claude-code` | ios-integration, android-integration, platform-channel-architect, device-orchestrator |
+| Backend | `/plugin install flutter-backend@flutter-claude-code` | rest-api, firebase, aws, graphql |
+| Testing & Perf | `/plugin install flutter-testing-performance@flutter-claude-code` | testing, performance-analyzer, performance-optimizer |
+| Deployment | `/plugin install flutter-deployment@flutter-claude-code` | ios-deployment, android-deployment |
+| Patterns Skill | `/plugin install flutter-patterns@flutter-claude-code` | Widget, testing, performance, security, animation patterns |
 
-## Quick Links
+## Agents
 
-- **[PLUGIN_INSTALLATION.md](PLUGIN_INSTALLATION.md)** - Installation guide
-- **[AGENT_USAGE_SCENARIOS.md](AGENT_USAGE_SCENARIOS.md)** - Practical usage examples
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contributing guidelines and architecture reference
-- **[WORKFLOW_DIAGRAMS.md](WORKFLOW_DIAGRAMS.md)** - Visual workflow diagrams
-- **[ARCHITECTURE_NOTES.md](ARCHITECTURE_NOTES.md)** - Technical architecture notes
+### Design Pipeline
+- **flutter-ui-designer** — Analyze designs, map to Flutter widget hierarchies
+- **flutter-ui-implementer** — Generate production-ready Flutter UI code
+- **flutter-device-orchestrator** — Manage iOS simulators and Android emulators
+- **flutter-ui-comparison** — Compare implementation vs original design
+- **flutter-design-iteration-coordinator** — Orchestrate full design-to-code loop
 
-## System Architecture
+### Architecture
+- **flutter-architect** — Clean Architecture, project structure, DI, navigation
+- **flutter-state-management** — Provider, Riverpod, BLoC, Redux, GetX
 
-### Category 1: Design-to-Implementation Pipeline
-The core workflow for converting designs into pixel-perfect Flutter implementations.
+### Platform Integration
+- **flutter-ios-integration** — iOS features, Swift/ObjC, permissions, frameworks
+- **flutter-android-integration** — Android features, Kotlin/Java, Gradle config
+- **flutter-platform-channel-architect** — Cross-platform channel design
 
-- **flutter-ui-designer**: Flutter UI Designer (Design Analysis & Widget Selection)
-- **flutter-ui-implementer**: Flutter UI Implementer (Code Generation & Styling)
-- **flutter-device-orchestrator**: Flutter Device Orchestrator (Simulator/Emulator Management)
-- **flutter-ui-comparison**: UI Comparison & Validation Specialist
-- **flutter-design-iteration-coordinator**: Design Iteration Coordinator (Workflow Orchestrator)
+### Backend
+- **flutter-rest-api** — HTTP clients (Dio), JSON serialization, auth
+- **flutter-firebase** — Auth, Firestore, Storage, FCM, Analytics
+- **flutter-aws** — Amplify, Cognito, S3, AppSync, Lambda
+- **flutter-graphql** — graphql_flutter, queries, mutations, subscriptions
 
-### Category 2: Flutter Architecture & Code Organization
-Ensures clean, maintainable, and scalable applications.
+### Quality & Deployment
+- **flutter-testing** — Unit, widget, integration, and golden tests
+- **flutter-performance-analyzer** — DevTools profiling, bottleneck detection
+- **flutter-performance-optimizer** — Widget, image, list, animation optimization
+- **flutter-ios-deployment** — App Store, TestFlight, code signing, provisioning
+- **flutter-android-deployment** — Play Store, app signing, staged rollout
 
-- **flutter-architect**: Flutter Architect (Project Structure & Patterns)
-- **flutter-state-management**: Flutter State Management Specialist
+## Patterns Skill
 
-### Category 3: Platform-Specific Development
-Handles iOS and Android native integrations.
-
-- **flutter-ios-integration**: iOS Integration Specialist
-- **flutter-android-integration**: Android Integration Specialist
-- **flutter-platform-channel-architect**: Platform Channel Architect
-
-### Category 4: Performance Optimization
-Ensures smooth, efficient applications.
-
-- **flutter-performance-analyzer**: Flutter Performance Analyzer
-- **flutter-performance-optimizer**: Flutter Performance Optimizer
-
-### Category 5: API Integration & Backend Connectivity
-Connects to various backend services.
-
-- **flutter-rest-api**: Flutter REST API Specialist
-- **flutter-firebase**: Flutter Firebase Integration Expert
-- **flutter-aws**: Flutter AWS Integration Expert
-- **flutter-graphql**: Flutter GraphQL Integration Expert
-
-### Category 6: Quality Assurance & Deployment
-Ensures code quality and smooth deployments.
-
-- **flutter-testing**: Flutter Testing Expert
-- **flutter-ios-deployment**: Flutter Deployment Specialist (iOS)
-- **flutter-android-deployment**: Flutter Deployment Specialist (Android)
-
-## Primary Workflows
-
-### 1. Design-to-Implementation (Core Workflow)
-
-```
-Design Input → UI Designer → UI Implementer → Device Orchestrator →
-UI Comparison → Design Iteration Coordinator → Pixel-Perfect Implementation
-```
-
-**Capabilities:**
-- Analyze Figma designs or screenshots
-- Generate Flutter widget hierarchies
-- Implement with exact styling
-- Launch on iOS simulators and Android emulators
-- Compare implementation with original design
-- Iterate until pixel-perfect (>95% fidelity)
-
-### 2. Complete Development Lifecycle
-
-```
-Design → Architecture → Implementation → Backend Integration →
-Performance Optimization → Testing → Deployment
-```
-
-**Capabilities:**
-- Set up Clean Architecture project structure
-- Implement state management (Provider, BLoC, Riverpod)
-- Integrate iOS/Android native features
-- Connect to REST APIs, Firebase, AWS, GraphQL
-- Profile and optimize performance
-- Write comprehensive tests
-- Deploy to App Store and Play Store
-
-## Documentation Foundation
-
-All agents are grounded in the official Flutter documentation at https://docs.flutter.dev, covering:
-
-- **UI Development**: /ui/widgets, /ui/layout, /ui/animations, /ui/design/material
-- **Platform Integration**: /platform-integration/ios, /platform-integration/android, /platform-integration/platform-channels
-- **State & Data**: /data-and-backend/state-mgmt, /data-and-backend/networking, /data-and-backend/firebase
-- **Performance**: /perf, /perf/rendering-performance, /tools/devtools
-- **Testing**: /testing/overview, /testing/debugging
-- **Deployment**: /deployment/android, /deployment/ios
-- **Architecture**: /resources/architectural-overview, /get-started/fundamentals
-
-## Key Features
-
-### Design Fidelity
-- Pixel-perfect accuracy (>95% fidelity)
-- Automated comparison between design and implementation
-- Iterative refinement process
-- Support for Figma, screenshots, and mockups
-
-### Platform Parity
-- Consistent features across iOS and Android
-- Platform-specific native integrations when needed
-- Proper Material Design (Android) and Cupertino (iOS) implementations
-- Platform channel support for native code
-
-### Backend Flexibility
-- REST API integration (http, dio)
-- Firebase (FlutterFire) support
-- AWS Amplify integration
-- GraphQL client setup
-- Custom backend solutions
-
-### Production Ready
-- Comprehensive testing (unit, widget, integration)
-- Performance optimization
-- App Store deployment automation
-- Play Store deployment automation
-- CI/CD pipeline setup
-
-## Getting Started
-
-### Quick Start Example: Design to Implementation
-
-```
-1. Export your design from Figma as PNG
-2. Save to /designs/screen_name.png
-3. Ask flutter-design-iteration-coordinator:
-   "Create a pixel-perfect implementation of /designs/screen_name.png"
-4. Agent orchestrates the complete workflow
-5. Receive pixel-perfect Flutter code
-```
-
-### Example: New Project Setup
-
-```
-1. Ask flutter-architect:
-   "Create a new e-commerce app with Clean Architecture"
-2. Receive complete project structure
-3. Ask flutter-state-management:
-   "Set up BLoC for state management"
-4. Receive configured state management
-```
-
-### Example: Firebase Integration
-
-```
-1. Ask flutter-firebase:
-   "Set up Firebase Auth and Firestore for user profiles"
-2. Receive complete Firebase integration
-3. Get authentication service and Firestore service
-```
-
-## Success Metrics
-
-The system tracks effectiveness through:
-
-- **Design Fidelity**: Percentage match between design and implementation
-- **Iteration Efficiency**: Number of iterations to achieve pixel-perfect result
-- **Code Quality**: Maintainability score, test coverage
-- **Performance**: Frame rendering, memory usage, app size
-- **Deployment Success**: App store approval rate, deployment time
-
-## Available Skills
-
-The `flutter-patterns` skill provides on-demand reference for:
-
-1. **Widget Patterns**: Common widget compositions and best practices
-2. **Animation Patterns**: Reusable animation implementations
-3. **Testing Patterns**: Test templates and strategies
-4. **Performance Patterns**: Optimization techniques
-5. **Security Patterns**: Security best practices
-
-## Agent Interaction Matrix
-
-Agents are designed to work together:
-
-- **flutter-design-iteration-coordinator** orchestrates flutter-ui-designer, flutter-ui-implementer, flutter-device-orchestrator, and flutter-ui-comparison
-- **flutter-architect** works with flutter-state-management
-- **flutter-platform-channel-architect** coordinates with flutter-ios-integration and flutter-android-integration
-- **flutter-performance-analyzer** feeds findings to flutter-performance-optimizer
-- **flutter-ios-deployment** and **flutter-android-deployment** work in parallel
-
-## Repository Structure
-
-```
-flutter-claude-code/
-├── README.md                      # Overview and quick start
-├── PLUGIN_INSTALLATION.md         # Installation instructions
-├── AGENT_USAGE_SCENARIOS.md       # Practical usage examples
-├── CONTRIBUTING.md                # Contributing guidelines
-├── WORKFLOW_DIAGRAMS.md           # Visual workflow diagrams
-├── ARCHITECTURE_NOTES.md          # Technical architecture notes
-├── .claude/                       # Agent and skill definitions
-│   ├── agents/                    # All agent definitions
-│   └── skills/                    # All skill definitions
-└── flutter-*/                     # Plugin directories
-```
+Use `/flutter-patterns` for quick reference on widget, testing, performance, security, and animation best practices.
 
 ## Contributing
 
-Contributions are welcome! See `CONTRIBUTING.md` for guidelines on:
-- Adding new agents
-- Improving existing agents
-- Updating documentation
-- Testing and quality standards
-
-## Documentation Coverage
-
-This architecture covers:
-- ✅ UI Development (Material, Cupertino, layouts, animations)
-- ✅ Platform Integration (iOS, Android, platform channels)
-- ✅ State Management (Provider, BLoC, Riverpod, etc.)
-- ✅ Networking (REST, GraphQL, WebSockets)
-- ✅ Backend Services (Firebase, AWS, custom APIs)
-- ✅ Performance (profiling, optimization, DevTools)
-- ✅ Testing (unit, widget, integration, golden)
-- ✅ Deployment (iOS App Store, Google Play Store, CI/CD)
-- ✅ Architecture (Clean Architecture, design patterns)
-- ✅ Responsive Design (multi-device, adaptive layouts)
-
-## Production Deployment Support
-
-Both iOS and Android deployment are fully supported:
-
-**iOS:**
-- Xcode configuration
-- Code signing setup
-- TestFlight beta testing
-- App Store submission
-- CI/CD automation
-
-**Android:**
-- Gradle configuration
-- App signing
-- Play Store internal testing
-- Production release
-- CI/CD automation
-
-## Conclusion
-
-This Flutter agent ecosystem provides a complete, production-ready development system that takes you from initial design concepts through to deployed applications on both iOS and Android platforms.
-
-The modular architecture allows you to start with the core design-to-implementation workflow and progressively expand to cover all aspects of Flutter development.
-
----
-
-**Total Agents**: 19 specialized agents
-**Total Categories**: 6 agent categories
-**Total Skills**: 1 comprehensive patterns skill
-**Coverage**: Complete Flutter development lifecycle
-**Platforms**: iOS, Android (with Web/Desktop extensibility)
-**Documentation Base**: Official Flutter docs at https://docs.flutter.dev
+See [CONTRIBUTING.md](CONTRIBUTING.md) for architecture details and contribution guidelines.
